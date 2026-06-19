@@ -683,9 +683,9 @@
       function validate() {
         var inputs = Array.from(slotsEl.querySelectorAll('input'));
         var values = inputs.map(function (i) { return i.value.trim(); });
-        var allFilled = values.every(function (v) { return v.length > 0; });
-        var hasDupes = new Set(values.map(function (v) { return v.toLowerCase(); })).size < values.length;
-        if (!allFilled) { errorEl.textContent = ''; submitBtn.disabled = true; return; }
+        var filled = values.filter(function (v) { return v.length > 0; });
+        var hasDupes = new Set(filled.map(function (v) { return v.toLowerCase(); })).size < filled.length;
+        if (filled.length < 1) { errorEl.textContent = ''; submitBtn.disabled = true; return; }
         if (hasDupes) { errorEl.textContent = 'Each name must be unique.'; submitBtn.disabled = true; return; }
         errorEl.textContent = '';
         submitBtn.disabled = false;
@@ -717,7 +717,7 @@
       window._needsNameSetup = function () {
         var names = {};
         try { names = JSON.parse(localStorage.getItem('fbp-people-names') || '{}'); } catch(e) {}
-        return !(window.PEOPLE_SLOTS || []).every(function (s) { return names[s.id] && names[s.id].trim(); });
+        return !(window.PEOPLE_SLOTS || []).some(function (s) { return names[s.id] && names[s.id].trim(); });
       };
 
       // Called from module script on first load; called from editCrew() for editing
@@ -795,7 +795,6 @@
 
     // ── STATE ──
     let selections = {};
-    try { selections = JSON.parse(localStorage.getItem('fbp-demo-selections') || '{}'); } catch(e) {}
 
     let currentPerson = localStorage.getItem('fbp-person') || '';
     if (currentPerson && !window.PEOPLE.find(p => p.id === currentPerson)) {
@@ -840,7 +839,6 @@
       const newVal = !isSelected(bid, currentPerson);
       if (!selections[bid]) selections[bid] = {};
       selections[bid][currentPerson] = newVal;
-      localStorage.setItem('fbp-demo-selections', JSON.stringify(selections));
       render();
       if (!window.DEMO_MODE && _fbRef && _fbUpdate && _db) {
         try { await _fbUpdate(_fbRef(_db, `ba29/selections/${bid}`), { [currentPerson]: newVal }); }
@@ -1395,7 +1393,7 @@
         const selRef = ref(_db, 'ba29/selections');
         onValue(selRef, snap => {
           const remote = snap.val();
-          if (remote) { selections = remote; localStorage.setItem('fbp-demo-selections', JSON.stringify(selections)); }
+          if (remote) { selections = remote; }
           render();
         }, err => { console.warn('Firebase offline, using local state:', err.message); render(); });
       } catch(e) {
