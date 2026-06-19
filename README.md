@@ -3,7 +3,7 @@
 Open-source festival schedule planner for groups attending
 **Brutal Assault 29** (August 4–8, 2026, Josefov Fortress, CZ).
 
-🎮 **[Live Demo](https://YOUR-USERNAME.github.io/ba29-festival-battle-plan/)**
+🎮 **[Live Demo](https://oxyport.github.io/ba29-festival-battle-plan/)**
 (runs in demo mode — local-only, no sync)
 
 ## Features
