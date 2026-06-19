@@ -14,7 +14,6 @@ Open-source festival schedule planner for groups attending
 - Time conflict and group consensus detection
 - Dark/Light theme with auto-switching
 - PWA — installable, works offline
-- Colorblind-safe color palette (IBM palette)
 - Haptic feedback where supported
 - English UI
 
