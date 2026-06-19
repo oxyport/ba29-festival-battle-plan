@@ -1,5 +1,32 @@
 # Setup Guide
 
+## 0. Get the Files
+
+You need a local copy of the project before you can configure anything.
+
+### Option A: Download as ZIP (simplest, no Git needed)
+
+1. Go to the repository on GitHub
+2. Click the green **"Code"** button (top right)
+3. Select **"Download ZIP"**
+4. Unzip the downloaded file — you'll get a folder like `ba29-festival-battle-plan-main`
+5. Rename it to `ba29-festival-battle-plan` (optional, for clarity)
+
+### Option B: Clone with Git
+
+If you have Git installed:
+
+```bash
+git clone https://github.com/oxyport/ba29-festival-battle-plan.git
+cd ba29-festival-battle-plan
+```
+
+Either way, the result is a local folder containing `index.html`, `schedule.js`,
+`config.example.js`, and the other project files. That folder is what you'll
+configure in Step 5 and upload to Netlify in Step 6.
+
+---
+
 ## 1. Firebase Project
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com)
