@@ -40,9 +40,10 @@
     if (window.applyPersonColors)     window.applyPersonColors();
 
     function detectDemoMode() {
-      if (!window.FIREBASE_CONFIG) return true;
-      if (!window.FIREBASE_CONFIG.apiKey) return true;
-      if (window.FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') return true;
+      if (!window.FIREBASE_CONFIG) { console.warn('[BA29] DEMO MODE: window.FIREBASE_CONFIG not set. Is config.js using window.FIREBASE_CONFIG = {...}?'); return true; }
+      if (!window.FIREBASE_CONFIG.apiKey) { console.warn('[BA29] DEMO MODE: apiKey missing in FIREBASE_CONFIG'); return true; }
+      if (window.FIREBASE_CONFIG.apiKey.startsWith('YOUR_')) { console.warn('[BA29] DEMO MODE: FIREBASE_CONFIG still has placeholder values'); return true; }
+      if (!window.FIREBASE_CONFIG.databaseURL) { console.warn('[BA29] DEMO MODE: databaseURL missing — required for Realtime Database'); return true; }
       return false;
     }
     window.DEMO_MODE = detectDemoMode();

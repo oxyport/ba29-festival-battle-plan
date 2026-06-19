@@ -75,19 +75,24 @@ connect to your database.
 5. Enter any nickname (e.g., "BA29 App") — this is just a label
 6. Leave **"Also set up Firebase Hosting"** unchecked
 7. Click **"Register app"**
-8. You'll see a code block like this — **copy the whole `firebaseConfig` object**:
+8. You'll see a code block — **copy only the values** (the keys in quotes after the colons):
 
 ```js
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "your-project.firebaseapp.com",
-  databaseURL: "https://your-project-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "your-project-id",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abc123"
+  apiKey: "AIzaSy...",           ← copy this value
+  authDomain: "...",             ← copy this value
+  databaseURL: "https://...",    ← copy this value (may be missing — see note below)
+  projectId: "...",              ← copy this value
+  storageBucket: "...",          ← copy this value
+  messagingSenderId: "...",      ← copy this value
+  appId: "..."                   ← copy this value
 };
 ```
+
+> **Note on databaseURL**: This field may not appear in the Firebase console snippet.
+> Find it manually: Firebase console → Realtime Database → copy the URL shown at the top
+> of the Data tab. It looks like:
+> `https://your-project-default-rtdb.europe-west1.firebasedatabase.app`
 
 9. Click **"Continue to console"** — you don't need to do anything else on that page
 
@@ -97,13 +102,11 @@ Now you'll create your personal `config.js` file with the credentials from Step 
 
 1. In your local copy of the repo, find the file **`config.example.js`**
 2. **Duplicate** it and rename the copy to **`config.js`** (same folder, same level as `index.html`)
-3. Open `config.js` in a text editor
-4. Replace each placeholder with the real value from your Firebase `firebaseConfig`:
+3. Open `config.js` in a text editor — it must look **exactly** like this:
 
 ```js
-// config.js — fill in your Firebase credentials from Step 4
 window.FIREBASE_CONFIG = {
-  apiKey:            "AIzaSy...",           // ← paste your apiKey here
+  apiKey:            "AIzaSy...",
   authDomain:        "your-project.firebaseapp.com",
   databaseURL:       "https://your-project-default-rtdb.europe-west1.firebasedatabase.app",
   projectId:         "your-project-id",
@@ -113,10 +116,15 @@ window.FIREBASE_CONFIG = {
 };
 ```
 
-5. Save the file
+4. Replace every value with the real values from Step 4 and save the file
 
-> **Important**: `config.js` is listed in `.gitignore` and will never be committed
-> to GitHub. It only lives on your computer (and on Netlify — see Step 6).
+**⚠️ Common mistakes that cause Demo Mode to stay active:**
+- Using `const firebaseConfig = {...}` (from Firebase docs) instead of `window.FIREBASE_CONFIG = {...}`
+- Leaving any `YOUR_...` placeholder unchanged
+- Missing `databaseURL` — find it in Firebase console → Realtime Database → Data tab (the URL at the top)
+
+> **Note**: `config.js` is in `.gitignore` and will never be committed to GitHub.
+> It only lives on your computer — and on Netlify after you upload it in Step 6.
 
 ## 6. Deploy
 
