@@ -749,6 +749,7 @@
         });
         localStorage.setItem('fbp-people-names', JSON.stringify(names));
         if (window.buildPeopleFromConfig) window.buildPeopleFromConfig();
+        if (window._saveCrew) window._saveCrew(names);
         hide();
         if (_onComplete) _onComplete();
         _onComplete = null;
@@ -851,6 +852,13 @@
     let ttGridDay = null, ttGridSlideDir = null, dayListSlideDir = null;
 
     let _fbRef = null, _fbUpdate = null, _db = null;
+
+    // Exposed so setup modal can write crew names to Firebase
+    window._saveCrew = async function(names) {
+      if (!_db || !_fbRef || !_fbUpdate) return;
+      try { await _fbUpdate(_fbRef(_db, 'ba29/crew'), names); }
+      catch(e) { console.warn('Firebase crew write failed:', e.message); }
+    };
 
     // ── HELPERS ──
     const getDayInfo   = id => DAYS.find(d => d.id === id) || DAYS[1];
@@ -1453,6 +1461,27 @@
         const { getDatabase, ref, onValue, update } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
         const app = initializeApp(window.FIREBASE_CONFIG);
         _db = getDatabase(app); _fbRef = ref; _fbUpdate = update;
+        // Sync crew names across devices
+        const crewRef = ref(_db, 'ba29/crew');
+        onValue(crewRef, snap => {
+          const remote = snap.val();
+          if (remote) {
+            // Merge remote names into localStorage — remote fills gaps, local overrides
+            let local = {};
+            try { local = JSON.parse(localStorage.getItem('fbp-people-names') || '{}'); } catch(e) {}
+            const merged = Object.assign({}, remote, local);
+            // Only keep non-empty values
+            Object.keys(merged).forEach(k => { if (!merged[k] || !merged[k].trim()) delete merged[k]; });
+            localStorage.setItem('fbp-people-names', JSON.stringify(merged));
+            if (window.buildPeopleFromConfig) window.buildPeopleFromConfig();
+            if (window.applyPersonColors) window.applyPersonColors();
+            // If currentPerson got added via remote, validate it
+            if (currentPerson && !window.PEOPLE.find(p => p.id === currentPerson)) {
+              currentPerson = ''; localStorage.removeItem('fbp-person');
+            }
+          }
+        });
+
         const selRef = ref(_db, 'ba29/selections');
         onValue(selRef, snap => {
           const remote = snap.val();
