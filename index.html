@@ -1124,7 +1124,7 @@
       </div>
       ${dayConflicts.length?`<div class="plan-section">
         <button class="plan-section-header" onclick="toggleSection('conflicts')">
-          <span>${kfCollapsed?'▶':'▼'} ⚠ CONFLICTS</span><span class="plan-section-count">${dayConflicts.length}</span>
+          <span>${kfCollapsed?'▶':'▼'} ⚠ CLASHES</span><span class="plan-section-count">${dayConflicts.length}</span>
         </button>
         ${kfCollapsed?'':`<div class="plan-section-body">${renderConflictsBlock(dayConflicts)}</div>`}
       </div>`:''}`;
@@ -1159,8 +1159,8 @@
       const byDay={};
       clashes.forEach(c=>{(byDay[c.a.d]||=[]).push(c);});
       return `<div class="lineup-poster" style="--day-color:#c0392b">
-        <div class="poster-header"><div class="poster-emoji">⚔</div><div class="poster-title-block"><div class="poster-presents">GROUP // CONFLICTS</div><div class="poster-date" style="color:#c0392b">TIME CLASHES</div><div class="poster-sub">WHEN THE GROUP HAS TO SPLIT</div></div><div class="poster-count" style="color:#c0392b">${clashes.length}<br><span>CLASHES</span></div></div>
-        ${!clashes.length?`<div class="empty"><div style="font-size:48px;margin-bottom:12px">🤝</div><div>NO CONFLICTS!</div><div style="font-size:12px;margin-top:6px;color:#555">ALL PICKS ARE COMPATIBLE.</div></div>`
+        <div class="poster-header"><div class="poster-emoji">⚔</div><div class="poster-title-block"><div class="poster-presents">GROUP // CLASHES</div><div class="poster-date" style="color:#c0392b">TIME CLASHES</div><div class="poster-sub">WHEN THE GROUP HAS TO SPLIT</div></div><div class="poster-count" style="color:#c0392b">${clashes.length}<br><span>CLASHES</span></div></div>
+        ${!clashes.length?`<div class="empty"><div style="font-size:48px;margin-bottom:12px">🤝</div><div>NO CLASHES!</div><div style="font-size:12px;margin-top:6px;color:#555">ALL PICKS ARE COMPATIBLE.</div></div>`
         :DAYS.filter(d=>byDay[d.id]).map(d=>`<div class="conflict-day-block">
           <div class="conflict-day-header" style="color:${d.color}">${d.emoji} ${d.date}</div>
           ${byDay[d.id].map(c=>{
@@ -1180,8 +1180,8 @@
       const me=getPersonInfo(currentPerson), byDay={};
       conflicts.forEach(c=>{(byDay[c.a.d]||=[]).push(c);});
       return `<div class="lineup-poster" style="--day-color:#c0392b">
-        <div class="poster-header"><div class="poster-emoji">⚠</div><div class="poster-title-block"><div class="poster-presents">BATTLE PLAN // CONFLICTS</div><div class="poster-date" style="color:${me?me.color:'#c0392b'}">${me?me.name||me.id:''}</div><div class="poster-sub">YOUR TIME CLASHES</div></div><div class="poster-count" style="color:#c0392b">${conflicts.length}<br><span>CLASHES</span></div></div>
-        ${!conflicts.length?`<div class="empty"><div style="font-size:48px;margin-bottom:12px">✅</div><div>NO CONFLICTS! 🤘</div><div style="font-size:12px;margin-top:6px;color:#555">YOUR PICKS ARE CONFLICT-FREE.</div></div>`
+        <div class="poster-header"><div class="poster-emoji">⚠</div><div class="poster-title-block"><div class="poster-presents">BATTLE PLAN // CLASHES</div><div class="poster-date" style="color:${me?me.color:'#c0392b'}">${me?me.name||me.id:''}</div><div class="poster-sub">YOUR TIME CLASHES</div></div><div class="poster-count" style="color:#c0392b">${conflicts.length}<br><span>CLASHES</span></div></div>
+        ${!conflicts.length?`<div class="empty"><div style="font-size:48px;margin-bottom:12px">✅</div><div>NO CLASHES! 🤘</div><div style="font-size:12px;margin-top:6px;color:#555">YOUR PICKS ARE CLASH-FREE.</div></div>`
         :DAYS.filter(d=>byDay[d.id]).map(d=>`<div class="conflict-day-block">
           <div class="conflict-day-header" style="color:${d.color}">${d.emoji} ${d.date}</div>
           ${byDay[d.id].map(c=>{
@@ -1314,7 +1314,7 @@
 
         <div class="stats-row">
           <button class="stat-box stat-box-btn" data-stat-nav="my-picks"><div class="stat-value" style="color:${me?me.color:'#c0392b'}">${myPicks.length}</div><div class="stat-label">MY PICKS</div></button>
-          <button class="stat-box stat-box-btn ${conflicts.length>0?'stat-warn':''}" data-stat-nav="my-conflicts"><div class="stat-value" style="color:${conflicts.length>0?'#c0392b':'#27ae60'}">${conflicts.length}</div><div class="stat-label">MY CONFLICTS</div></button>
+          <button class="stat-box stat-box-btn ${conflicts.length>0?'stat-warn':''}" data-stat-nav="my-conflicts"><div class="stat-value" style="color:${conflicts.length>0?'#c0392b':'#27ae60'}">${conflicts.length}</div><div class="stat-label">MY CLASHES</div></button>
           <button class="stat-box stat-box-btn" data-stat-nav="group"><div class="stat-value" style="color:#27ae60">${groupPicksCount}</div><div class="stat-label">GROUP PICKS</div></button>
           <button class="stat-box stat-box-btn ${groupConflicts.length>0?'stat-warn':''}" data-stat-nav="clashes"><div class="stat-value" style="color:${groupConflicts.length>0?'#c0392b':'#27ae60'}">${groupConflicts.length}</div><div class="stat-label">CLASHES</div></button>
         </div>
@@ -1334,7 +1334,7 @@
           <button class="chip ${progFilter==='all'?'chip-active':''}" data-prog-filter="all">ALL BANDS</button>
           <button class="chip ${progFilter==='mine'?'chip-active':''}" data-prog-filter="mine" style="${progFilter==='mine'?`color:${me?me.color:'#c0392b'};border-color:${me?me.color:'#c0392b'}`:''}">MINE</button>
           <button class="chip ${progFilter==='group'?'chip-active':''}" data-prog-filter="group">GROUP PLAN</button>
-          <button class="chip ${progFilter==='clashes'?'chip-active':''}" data-prog-filter="clashes" style="${progFilter==='clashes'?'color:#c0392b;border-color:#c0392b':''}">⚔ CONFLICTS</button>
+          <button class="chip ${progFilter==='clashes'?'chip-active':''}" data-prog-filter="clashes" style="${progFilter==='clashes'?'color:#c0392b;border-color:#c0392b':''}">⚔ CLASHES</button>
         </div></div>
         <div class="filter-section"><div class="filter-row">
           <button class="chip ${stageFilter==='all'?'chip-active':''}" data-stage-filter="all">ALL STAGES</button>
