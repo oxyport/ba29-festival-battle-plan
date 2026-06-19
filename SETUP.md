@@ -124,13 +124,31 @@ window.FIREBASE_CONFIG = {
 
 Netlify lets you upload the folder directly and serve it — including your `config.js`.
 
+> ⚠️ **Important**: Make sure your `config.js` is inside the project folder before
+> uploading. It is not in the GitHub repo (by design), so you need to add it manually.
+> Without it, the app runs in Demo Mode even on Netlify.
+
 1. Sign up at [netlify.com](https://netlify.com) (free)
-2. From the Netlify dashboard, click **"Add new site" → "Deploy manually"**
-3. Drag your entire project folder (the one containing `index.html`) into the upload area
-4. Netlify deploys it in seconds — you get a URL like `your-app.netlify.app`
-5. Share that URL with your group
+2. Confirm that your project folder contains these files:
+   ```
+   ba29-festival-battle-plan/
+   ├── index.html
+   ├── schedule.js
+   ├── config.js        ← must be here (you created this in Step 5)
+   ├── config.example.js
+   ├── sw.js
+   └── ...
+   ```
+3. From the Netlify dashboard, click **"Add new site" → "Deploy manually"**
+4. Drag your entire project folder into the upload area
+5. Netlify deploys it in seconds — you get a URL like `your-app.netlify.app`
+6. Share that URL with your group
 
 To update later: drag-and-drop the folder again — Netlify replaces the old version.
+
+**How to verify Firebase is active**: Open the app, open the browser developer tools
+(F12), go to the Console tab. If you see `[BA29] config.js not found`, the file is
+missing from the upload. If Firebase connects successfully, you'll see no such warning.
 
 ### Option B: GitHub Pages
 
