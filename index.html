@@ -195,6 +195,15 @@
     }
     .setup-submit:disabled { opacity: 0.4; cursor: not-allowed; }
     .setup-submit:not(:disabled):hover { opacity: 0.85; }
+    .setup-add-btn {
+      width: 100%; padding: 10px; margin-top: 4px; margin-bottom: 8px;
+      background: transparent; border: 1px dashed var(--border-strong);
+      color: var(--text-muted); font-family: 'Share Tech Mono', monospace;
+      font-size: 12px; letter-spacing: 2px; cursor: pointer;
+      border-radius: 2px; transition: border-color 0.15s, color 0.15s;
+      touch-action: manipulation;
+    }
+    .setup-add-btn:hover { border-color: var(--accent-red); color: var(--accent-red); }
     .setup-footer {
       font-size: 10px; color: var(--text-muted); letter-spacing: 2px;
       text-align: center; margin-top: 16px;
@@ -468,6 +477,7 @@
       <div class="setup-modal-title">Welcome to<br>BA29 Festival Battle Plan</div>
       <div class="setup-modal-sub">Set up your crew before we start</div>
       <div id="setup-slots"></div>
+      <button id="setup-add" class="setup-add-btn">+ ADD PERSON</button>
       <div id="setup-error" class="setup-error"></div>
       <button id="setup-submit" class="setup-submit" disabled>START PLANNING</button>
       <div class="setup-footer">Names are stored only on your device</div>
@@ -650,53 +660,79 @@
     (function () {
       var modal = document.getElementById('setup-modal');
       var slotsEl = document.getElementById('setup-slots');
+      var addBtn = document.getElementById('setup-add');
       var submitBtn = document.getElementById('setup-submit');
       var errorEl = document.getElementById('setup-error');
       var _onComplete = null;
+      var visibleCount = 1;
+
+      function addSlotRow(slot, value) {
+        var row = document.createElement('div');
+        row.className = 'setup-slot';
+        var dot = document.createElement('div');
+        dot.className = 'setup-slot-dot';
+        dot.style.background = slot.color;
+        var inp = document.createElement('input');
+        inp.type = 'text';
+        inp.className = 'setup-slot-input';
+        inp.placeholder = 'Name';
+        inp.maxLength = 20;
+        inp.dataset.slotId = slot.id;
+        inp.setAttribute('autocomplete', 'off');
+        inp.setAttribute('autocorrect', 'off');
+        inp.setAttribute('spellcheck', 'false');
+        if (value) inp.value = value;
+        inp.addEventListener('input', validate);
+        row.appendChild(dot);
+        row.appendChild(inp);
+        slotsEl.appendChild(row);
+      }
 
       function buildSlots(prefilled) {
+        var slots = window.PEOPLE_SLOTS || [];
         slotsEl.innerHTML = '';
-        (window.PEOPLE_SLOTS || []).forEach(function (slot) {
-          var row = document.createElement('div');
-          row.className = 'setup-slot';
-          var dot = document.createElement('div');
-          dot.className = 'setup-slot-dot';
-          dot.style.background = slot.color;
-          var inp = document.createElement('input');
-          inp.type = 'text';
-          inp.className = 'setup-slot-input';
-          inp.placeholder = 'Name';
-          inp.maxLength = 20;
-          inp.dataset.slotId = slot.id;
-          inp.setAttribute('autocomplete', 'off');
-          inp.setAttribute('autocorrect', 'off');
-          inp.setAttribute('spellcheck', 'false');
-          if (prefilled && prefilled[slot.id]) inp.value = prefilled[slot.id];
-          inp.addEventListener('input', validate);
-          row.appendChild(dot);
-          row.appendChild(inp);
-          slotsEl.appendChild(row);
-        });
+        // On edit: show all slots that have a name, or at least 1
+        var filledIds = slots.filter(function(s) { return prefilled && prefilled[s.id] && prefilled[s.id].trim(); });
+        visibleCount = Math.max(1, filledIds.length);
+        for (var i = 0; i < visibleCount; i++) {
+          addSlotRow(slots[i], prefilled && prefilled[slots[i].id] ? prefilled[slots[i].id] : '');
+        }
+        updateAddBtn();
         validate();
         var first = slotsEl.querySelector('input');
         if (first) setTimeout(function () { first.focus(); }, 100);
       }
 
+      function updateAddBtn() {
+        var max = (window.PEOPLE_SLOTS || []).length;
+        addBtn.style.display = visibleCount < max ? '' : 'none';
+      }
+
       function validate() {
         var inputs = Array.from(slotsEl.querySelectorAll('input'));
-        var values = inputs.map(function (i) { return i.value.trim(); });
-        var filled = values.filter(function (v) { return v.length > 0; });
-        var hasDupes = new Set(filled.map(function (v) { return v.toLowerCase(); })).size < filled.length;
+        var filled = inputs.map(function(i) { return i.value.trim(); }).filter(function(v) { return v.length > 0; });
+        var hasDupes = new Set(filled.map(function(v) { return v.toLowerCase(); })).size < filled.length;
         if (filled.length < 1) { errorEl.textContent = ''; submitBtn.disabled = true; return; }
         if (hasDupes) { errorEl.textContent = 'Each name must be unique.'; submitBtn.disabled = true; return; }
         errorEl.textContent = '';
         submitBtn.disabled = false;
       }
 
+      addBtn.addEventListener('click', function() {
+        var slots = window.PEOPLE_SLOTS || [];
+        if (visibleCount >= slots.length) return;
+        addSlotRow(slots[visibleCount], '');
+        visibleCount++;
+        updateAddBtn();
+        validate();
+        var inputs = slotsEl.querySelectorAll('input');
+        setTimeout(function() { inputs[inputs.length - 1].focus(); }, 50);
+      });
+
       function show(isEdit) {
         var prefilled = {};
         try { prefilled = JSON.parse(localStorage.getItem('fbp-people-names') || '{}'); } catch(e) {}
-        buildSlots(isEdit ? prefilled : {});
+        buildSlots(isEdit ? prefilled : null);
         modal.classList.add('visible');
       }
 
@@ -707,7 +743,10 @@
       submitBtn.addEventListener('click', function () {
         var inputs = Array.from(slotsEl.querySelectorAll('input'));
         var names = {};
-        inputs.forEach(function (inp) { names[inp.dataset.slotId] = inp.value.trim(); });
+        inputs.forEach(function (inp) {
+          var v = inp.value.trim();
+          if (v) names[inp.dataset.slotId] = v;
+        });
         localStorage.setItem('fbp-people-names', JSON.stringify(names));
         if (window.buildPeopleFromConfig) window.buildPeopleFromConfig();
         hide();

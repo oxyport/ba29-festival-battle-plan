@@ -1,18 +1,18 @@
 // schedule.js — Festival data & crew configuration for BA29 Festival Battle Plan
-// To add bands: edit SCHEDULE. To add crew members: uncomment PEOPLE_SLOTS entries.
 
+// All 10 available crew slots — names are set via the in-app setup modal.
+// The app shows only slots that have a name assigned.
 window.PEOPLE_SLOTS = [
-  { id: "p1", color: "#dc267f" },  // magenta
-  { id: "p2", color: "#ffb000" },  // yellow
-  { id: "p3", color: "#648fff" },  // blue
-  { id: "p4", color: "#785ef0" }   // purple
-  // To add more members (max 10):
-  // { id: "p5",  color: "#6cdb6c" },  // green
-  // { id: "p6",  color: "#fe6100" },  // orange
-  // { id: "p7",  color: "#fe3463" },  // pink
-  // { id: "p8",  color: "#00bfb3" },  // teal
-  // { id: "p9",  color: "#e8a87c" },  // ochre
-  // { id: "p10", color: "#c38d9e" }   // rosé
+  { id: "p1",  color: "#dc267f" },  // magenta
+  { id: "p2",  color: "#ffb000" },  // yellow
+  { id: "p3",  color: "#648fff" },  // blue
+  { id: "p4",  color: "#785ef0" },  // purple
+  { id: "p5",  color: "#6cdb6c" },  // green
+  { id: "p6",  color: "#fe6100" },  // orange
+  { id: "p7",  color: "#fe3463" },  // pink
+  { id: "p8",  color: "#00bfb3" },  // teal
+  { id: "p9",  color: "#e8a87c" },  // ochre
+  { id: "p10", color: "#c38d9e" }   // rosé
 ];
 
 window.PEOPLE = [];
@@ -21,16 +21,18 @@ window.buildPeopleFromConfig = function () {
   var slots = window.PEOPLE_SLOTS || [];
   var names = {};
   try { names = JSON.parse(localStorage.getItem('fbp-people-names') || '{}'); } catch (e) {}
-  window.PEOPLE = slots.map(function (slot) {
-    var n = names[slot.id] || null;
-    return {
-      id: slot.id,
-      color: slot.color,
-      name: n,
-      short: n ? n.substring(0, 2).toUpperCase() : slot.id.toUpperCase(),
-      cssVar: '--person-' + slot.id
-    };
-  });
+  window.PEOPLE = slots
+    .filter(function (slot) { return names[slot.id] && names[slot.id].trim(); })
+    .map(function (slot) {
+      var n = names[slot.id].trim();
+      return {
+        id: slot.id,
+        color: slot.color,
+        name: n,
+        short: n.substring(0, 2).toUpperCase(),
+        cssVar: '--person-' + slot.id
+      };
+    });
 };
 
 window.applyPersonColors = function () {
