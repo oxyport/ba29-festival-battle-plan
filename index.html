@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>BA29 Festival Battle Plan</title>
+  <meta name="description" content="Group festival schedule planner for Brutal Assault 29 — Aug 4–8, 2026, Josefov Fortress, CZ">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oswald:wght@700;900&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#0a0808" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#faf6f0" media="(prefers-color-scheme: light)">
+
+  <!-- iOS splash screens -->
+  <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="splash-750x1334.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" href="splash-828x1792.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" href="splash-1125x2436.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)" href="splash-1170x2532.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3)" href="splash-1179x2556.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" href="splash-1242x2208.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" href="splash-1242x2688.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3)" href="splash-1284x2778.png">
+  <link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3)" href="splash-1290x2796.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BA29 Plan">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+
+  <!-- Data + config — must load synchronously before the module script -->
+  <script src="schedule.js"></script>
+  <script src="config.js" onerror="console.warn('config.js not found — running in DEMO mode')"></script>
+
+  <script>
+    // Sync bootstrap — runs during HTML parsing, before module script
+    if (window.buildPeopleFromConfig) window.buildPeopleFromConfig();
+    if (window.applyPersonColors)     window.applyPersonColors();
+
+    function detectDemoMode() {
+      if (!window.FIREBASE_CONFIG) return true;
+      if (!window.FIREBASE_CONFIG.apiKey) return true;
+      if (window.FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') return true;
+      return false;
+    }
+    window.DEMO_MODE = detectDemoMode();
+
+    // Apply theme immediately to avoid flash of wrong theme
+    (function () {
+      function applyThemeEarly(mode) {
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme =
+          (mode === 'auto') ? (prefersDark ? 'dark' : 'light') : mode;
+      }
+      applyThemeEarly(localStorage.getItem('ba-theme') || 'auto');
+    })();
+  </script>
+
+  <style>
+    :root {
+      --bg-base: #0a0808;
+      --bg-elevated: #161310;
+      --bg-card: #1f1b18;
+      --text-primary: #ffffff;
+      --text-secondary: #aaaaaa;
+      --text-muted: #6a6a6a;
+      --accent-red: #c0392b;
+      --accent-red-dim: #8b1a1a;
+      --conflict-bg: rgba(192,57,43,0.18);
+      --conflict-border: #c0392b;
+      --person-p1: #dc267f;
+      --person-p2: #ffb000;
+      --person-p3: #648fff;
+      --person-p4: #785ef0;
+      --border-subtle: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.20);
+    }
+    [data-theme="light"] {
+      --bg-base: #faf6f0;
+      --bg-elevated: #f0ebe2;
+      --bg-card: #e8e2d6;
+      --text-primary: #1a1a1a;
+      --text-secondary: #5a5a5a;
+      --text-muted: #888888;
+      --accent-red: #c0392b;
+      --accent-red-dim: #e74c3c;
+      --conflict-bg: rgba(192,57,43,0.12);
+      --conflict-border: #c0392b;
+      --person-p1: #a01356;
+      --person-p2: #b87600;
+      --person-p3: #3050d0;
+      --person-p4: #4a32b8;
+      --border-subtle: rgba(0,0,0,0.08);
+      --border-strong: rgba(0,0,0,0.20);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      min-height: 100vh; background: var(--bg-base);
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text-secondary); overflow-x: hidden;
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+    .noise {
+      pointer-events: none; position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px; opacity: 0.4;
+    }
+    .scanlines {
+      pointer-events: none; position: fixed; inset: 0; z-index: 0;
+      background: repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+    }
+    [data-theme="light"] .scanlines { display: none; }
+    #root { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 0 14px; }
+
+    /* ── DEMO BANNER ── */
+    .demo-banner {
+      display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9000;
+      background: var(--accent-red-dim);
+      padding: 8px 40px 8px 16px;
+      padding-top: calc(8px + env(safe-area-inset-top));
+      font-size: 0.85rem; font-family: 'Share Tech Mono', monospace;
+      color: #fff; letter-spacing: 0.5px; align-items: center; gap: 10px;
+      flex-wrap: wrap;
+    }
+    .demo-banner a { color: #ffcc88; text-decoration: underline; }
+    .demo-banner a:hover { color: #fff; }
+    .demo-banner-close {
+      position: absolute; top: 50%; right: 12px; transform: translateY(-50%);
+      background: none; border: none; color: #fff; font-size: 20px;
+      cursor: pointer; line-height: 1; padding: 4px;
+      margin-top: calc(env(safe-area-inset-top) / 2);
+    }
+    body.demo-banner-visible {
+      padding-top: calc(env(safe-area-inset-top) + 38px);
+    }
+
+    /* ── SETUP MODAL ── */
+    .setup-modal {
+      display: none; position: fixed; inset: 0; z-index: 99000;
+      background: var(--bg-base); overflow-y: auto;
+      align-items: center; justify-content: center;
+      padding: 24px 16px;
+    }
+    .setup-modal.visible { display: flex; }
+    .setup-modal-content {
+      width: 100%; max-width: 420px;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .setup-modal-logo {
+      text-align: center; margin-bottom: 24px;
+    }
+    .setup-modal-title {
+      font-family: 'Oswald', sans-serif; font-weight: 900;
+      font-size: clamp(22px, 6vw, 32px); letter-spacing: 2px;
+      color: var(--text-primary); text-align: center;
+      text-shadow: 3px 3px 0 #8b1a1a; line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .setup-modal-sub {
+      font-size: 11px; color: var(--text-muted); letter-spacing: 3px;
+      text-align: center; margin-bottom: 32px; text-transform: uppercase;
+    }
+    .setup-slot {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .setup-slot-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      flex-shrink: 0; box-shadow: 0 0 8px rgba(0,0,0,0.6);
+    }
+    .setup-slot-input {
+      flex: 1; background: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: 2px; padding: 10px 12px;
+      color: var(--text-primary); font-family: 'Share Tech Mono', monospace;
+      font-size: 14px; letter-spacing: 1px;
+      outline: none; transition: border-color 0.15s;
+    }
+    .setup-slot-input:focus { border-color: var(--accent-red); }
+    .setup-slot-input::placeholder { color: var(--text-muted); }
+    .setup-error {
+      font-size: 11px; color: var(--accent-red); letter-spacing: 1px;
+      text-align: center; margin: 8px 0; min-height: 16px;
+    }
+    .setup-submit {
+      width: 100%; padding: 14px;
+      background: var(--accent-red); border: none; color: #fff;
+      font-family: 'Oswald', sans-serif; font-weight: 900;
+      font-size: 15px; letter-spacing: 4px; cursor: pointer;
+      border-radius: 2px; margin-top: 8px;
+      transition: opacity 0.15s; touch-action: manipulation;
+    }
+    .setup-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+    .setup-submit:not(:disabled):hover { opacity: 0.85; }
+    .setup-footer {
+      font-size: 10px; color: var(--text-muted); letter-spacing: 2px;
+      text-align: center; margin-top: 16px;
+    }
+    .title-divider {
+      width: 80%; max-width: 400px; height: 3px;
+      background: linear-gradient(90deg, transparent, #8b1a1a, #c0392b, #8b1a1a, transparent);
+      margin: 12px auto 24px;
+    }
+
+    /* ── HEADER ── */
+    .header { position: relative; text-align: center; padding: 36px 0 22px; border-bottom: 2px solid var(--border-subtle); margin-bottom: 20px; }
+    .header-tag { font-size: 11px; letter-spacing: 5px; color: var(--accent-red-dim); margin-bottom: 12px; }
+    .title {
+      font-family: 'Oswald', sans-serif; font-weight: 900;
+      font-size: clamp(48px, 13vw, 84px); line-height: 0.9; letter-spacing: -2px;
+      color: var(--text-primary);
+      text-shadow: 4px 4px 0 #8b1a1a, -1px -1px 0 #5a0000, 0 0 40px rgba(139,26,26,0.4);
+    }
+    .title-sub { font-size: clamp(18px, 5vw, 32px); color: var(--accent-red); letter-spacing: 6px; display: block; text-shadow: 2px 2px 0 #5a0000; }
+    .countdown-block { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
+    .countdown-label { font-size: 10px; color: var(--text-muted); letter-spacing: 3px; }
+    .countdown-value { font-size: 20px; font-weight: bold; color: var(--accent-red); text-shadow: 0 0 20px rgba(192,57,43,0.6); font-family: 'Oswald', sans-serif; letter-spacing: 4px; }
+    .faction-bar { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+    .faction-label { font-size: 10px; color: var(--text-muted); letter-spacing: 3px; }
+    .faction-name { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 3px; border: 1px solid; padding: 4px 12px; border-radius: 1px; }
+
+    /* ── PERSON PICK SCREEN ── */
+    .faction-pick { padding: 20px 0; }
+    .faction-grid { display: flex; flex-direction: column; gap: 10px; max-width: 360px; margin: 0 auto; }
+    .faction-pick-btn { background: var(--bg-base); border: 2px solid; padding: 18px 24px; cursor: pointer; transition: all 0.2s; font-family: 'Share Tech Mono', monospace; }
+    .faction-pick-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+    .section-card { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-top: 3px solid #8b1a1a; border-radius: 2px; padding: 20px 16px; margin-bottom: 20px; }
+    .section-header { font-family: 'Oswald', sans-serif; font-size: 14px; letter-spacing: 4px; color: var(--accent-red-dim); margin-bottom: 18px; text-align: center; }
+    .skull { color: var(--accent-red); margin: 0 8px; }
+
+    /* ── STATS ── */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
+    .stat-box { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 1px; padding: 11px 6px; text-align: center; }
+    .stat-warn { border-color: #5a1010; box-shadow: 0 0 10px rgba(192,57,43,0.2); }
+    .stat-value { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 22px; line-height: 1; color: var(--text-secondary); }
+    .stat-label { font-size: 8px; color: var(--text-muted); letter-spacing: 1.5px; margin-top: 5px; }
+
+    /* ── VIEW TABS ── */
+    .view-tabs-bar { display: flex; gap: 6px; margin-bottom: 16px; }
+    .view-tab-btn {
+      flex: 1; padding: 12px 8px; background: var(--bg-elevated);
+      border: 2px solid var(--border-subtle); border-radius: 4px;
+      color: var(--text-muted); font-family: 'Oswald', sans-serif;
+      font-weight: 700; font-size: 13px; letter-spacing: 2px;
+      cursor: pointer; transition: all 0.15s; touch-action: manipulation; min-height: 48px;
+    }
+    .view-tab-btn:hover { color: var(--text-secondary); border-color: var(--border-strong); }
+    .view-tab-active { background: var(--bg-card); border-color: var(--accent-red); color: var(--accent-red); }
+
+    /* ── DAY TABS ── */
+    .tabs { display: flex; gap: 4px; margin-bottom: 10px; border: 1px solid var(--border-subtle); background: var(--bg-base); padding: 4px; border-radius: 2px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .day-tabs { margin-bottom: 8px; }
+    .tab { flex: 1; min-width: max-content; background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 2px; padding: 9px 8px; font-size: 10px; cursor: pointer; font-family: 'Share Tech Mono', monospace; white-space: nowrap; letter-spacing: 1px; transition: all 0.15s; scroll-snap-align: start; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    .tab:hover { color: var(--text-secondary); }
+    .tab-active { background: var(--bg-card); color: var(--accent-red); border-color: var(--accent-red-dim); text-shadow: 0 0 10px rgba(192,57,43,0.5); }
+
+    /* ── FILTERS ── */
+    .filter-section { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; flex-wrap: wrap; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+    .chip { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border-subtle); border-radius: 1px; padding: 4px 8px; font-size: 9px; cursor: pointer; font-family: 'Share Tech Mono', monospace; letter-spacing: 0.5px; transition: all 0.15s; min-height: 44px; display: inline-flex; align-items: center; }
+    .chip:hover { border-color: var(--accent-red-dim); color: var(--text-secondary); }
+    .chip-active { color: var(--accent-red); border-color: var(--accent-red); background: var(--bg-card); }
+
+    /* ── LINEUP POSTER ── */
+    .lineup-poster { background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-base) 100%); border: 2px solid var(--border-subtle); border-top: 4px solid var(--day-color); border-radius: 2px; padding: 18px 14px; box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 60px rgba(0,0,0,0.4); }
+    .poster-header { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; margin-bottom: 18px; border-bottom: 1px dashed var(--border-subtle); }
+    .poster-emoji { font-size: 32px; flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(192,57,43,0.4)); }
+    .poster-title-block { flex: 1; min-width: 0; }
+    .poster-presents { font-size: 9px; color: var(--text-muted); letter-spacing: 4px; margin-bottom: 3px; }
+    .poster-date { font-family: 'Oswald', sans-serif; font-size: clamp(18px, 5vw, 24px); font-weight: 900; letter-spacing: 3px; line-height: 1; text-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+    .poster-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 2px; margin-top: 3px; }
+    .poster-count { text-align: center; font-family: 'Oswald', sans-serif; font-size: 24px; font-weight: 900; flex-shrink: 0; line-height: 1; }
+    .poster-count span { font-size: 9px; color: var(--text-muted); letter-spacing: 2px; }
+
+    /* ── BAND LIST ── */
+    .schedule-list { display: flex; flex-direction: column; gap: 5px; }
+    .band-row { display: flex; align-items: stretch; gap: 10px; padding: 9px 11px; background: rgba(255,255,255,0.012); transition: all 0.15s; cursor: default; }
+    .band-row:hover { background: rgba(192,57,43,0.05); }
+    .band-row-mine { background: rgba(192,57,43,0.12); box-shadow: inset 0 0 20px rgba(192,57,43,0.1); }
+    .band-row-consensus { background: rgba(39,174,96,0.08); box-shadow: inset 0 0 20px rgba(39,174,96,0.05); }
+    .band-row-mine.band-row-consensus { background: rgba(192,57,43,0.15); }
+    .band-time { flex-shrink: 0; min-width: 54px; text-align: center; font-family: 'Oswald', sans-serif; font-weight: 700; display: flex; flex-direction: column; align-items: center; justify-content: center; border-right: 1px dashed var(--border-subtle); padding-right: 10px; }
+    .band-time-start { color: var(--accent-red); font-size: 13px; letter-spacing: 1px; }
+    .band-time-sep { color: var(--text-muted); font-size: 8px; line-height: 0.8; }
+    .band-time-end { color: var(--text-muted); font-size: 10px; letter-spacing: 1px; }
+    .band-body { flex: 1; min-width: 0; }
+    .band-name { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 16px; letter-spacing: 1px; color: var(--text-primary); text-transform: uppercase; line-height: 1.1; word-break: break-word; }
+    .band-meta { display: flex; gap: 6px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+    .band-stage { font-size: 9px; padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 1px; letter-spacing: 1px; font-weight: bold; color: var(--text-secondary); background: transparent; }
+    .band-genre { font-size: 8px; padding: 2px 6px; border: 1px solid var(--border-strong); border-radius: 1px; letter-spacing: 1px; font-weight: bold; font-family: 'Share Tech Mono', monospace; color: var(--text-secondary); background: transparent; }
+    .band-factions { display: flex; gap: 3px; align-items: center; }
+    .faction-dot { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 18px; padding: 0 4px; border-radius: 9px; color: var(--text-primary); font-size: 10px; font-weight: bold; font-family: 'Oswald', sans-serif; box-shadow: 0 0 6px rgba(0,0,0,0.5); letter-spacing: 1px; }
+    .consensus-tag { font-size: 9px; color: #27ae60; background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.4); border-radius: 1px; padding: 2px 6px; letter-spacing: 1px; font-weight: bold; text-shadow: 0 0 10px rgba(39,174,96,0.5); }
+    .spotify-link { font-size: 12px; text-decoration: none; padding: 1px 4px; border-radius: 1px; transition: all 0.15s; opacity: 0.6; line-height: 1; display: inline-block; }
+    .spotify-link:hover { opacity: 1; transform: scale(1.2); }
+
+    /* ── SELECT BUTTON ── */
+    .select-btn { flex-shrink: 0; align-self: center; background: var(--bg-base); border: 1px solid var(--border-subtle); color: var(--text-muted); border-radius: 1px; padding: 8px 12px; font-size: 18px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.15s; line-height: 1; min-width: 40px; }
+    .select-btn:hover { color: var(--accent-red); border-color: var(--accent-red-dim); }
+    .select-btn.selected { color: var(--accent-red); border-color: var(--accent-red); background: var(--bg-card); box-shadow: 0 0 10px rgba(192,57,43,0.4); text-shadow: 0 0 8px rgba(192,57,43,0.8); }
+    .select-mini { padding: 4px 8px; font-size: 14px; min-width: 30px; margin-top: 5px; }
+
+    /* ── VIEW TOGGLE ── */
+    .view-toggle { display: flex; gap: 4px; margin-bottom: 12px; background: var(--bg-base); padding: 3px; border: 1px solid var(--border-subtle); border-radius: 2px; }
+    .vt-btn { flex: 1; background: transparent; color: var(--text-muted); border: 1px solid transparent; border-radius: 1px; padding: 7px; font-size: 10px; cursor: pointer; font-family: 'Share Tech Mono', monospace; letter-spacing: 2px; transition: all 0.15s; min-height: 44px; }
+    .vt-btn:hover { color: var(--text-secondary); }
+    .vt-active { background: var(--bg-card); color: var(--accent-red); border-color: var(--accent-red-dim); }
+
+    /* ── GRID VIEW ── */
+    .grid-help { font-size: 9px; color: var(--text-muted); letter-spacing: 2px; text-align: center; padding: 6px; font-family: 'Share Tech Mono', monospace; border: 1px dashed var(--border-subtle); margin-bottom: 8px; }
+    .grid-container { display: flex; max-height: 70vh; overflow: auto; border: 1px solid var(--border-subtle); background: var(--bg-base); position: relative; }
+    .grid-time-col { position: sticky; left: 0; z-index: 5; width: 44px; flex-shrink: 0; background: var(--bg-base); border-right: 1px solid var(--border-subtle); }
+    .grid-time-body { position: relative; }
+    .grid-hour { position: absolute; left: 0; right: 0; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 10px; color: var(--text-muted); padding: 2px 4px; border-top: 1px dashed #1a1a1a; letter-spacing: 1px; }
+    .grid-stages-area { display: flex; flex: 1; min-width: max-content; }
+    .grid-stage-col { flex: 0 0 130px; border-right: 1px solid var(--border-subtle); position: relative; }
+    .grid-stage-header { position: sticky; top: 0; z-index: 4; background: var(--bg-elevated); padding: 6px 4px; font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 10px; letter-spacing: 2px; text-align: center; border-bottom: 1px solid; color: var(--text-secondary); height: 28px; box-sizing: border-box; }
+    .grid-stage-body { position: relative; }
+    .grid-band { position: absolute; left: 2px; right: 2px; border: 1px solid; border-radius: 1px; padding: 4px 5px; overflow: hidden; cursor: pointer; transition: all 0.15s; min-height: 24px; touch-action: manipulation; }
+    .grid-band:hover { transform: scale(1.02); z-index: 3; box-shadow: 0 0 10px rgba(0,0,0,0.8); }
+    .grid-band-mine { box-shadow: inset 0 0 0 2px #c0392b, 0 0 12px rgba(192,57,43,0.5); }
+    .grid-band-consensus { box-shadow: inset 0 0 0 2px #27ae60, 0 0 12px rgba(39,174,96,0.4); }
+    .grid-band-mine.grid-band-consensus { box-shadow: inset 0 0 0 2px #c0392b, inset 0 0 0 4px #27ae60, 0 0 14px rgba(192,57,43,0.5); }
+    .grid-band-time { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--text-secondary); letter-spacing: 1px; line-height: 1; }
+    .grid-band-name { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 11px; line-height: 1.1; letter-spacing: 0.5px; color: var(--text-primary); text-transform: uppercase; margin-top: 3px; word-break: break-word; }
+    .grid-band-bottom { display: flex; gap: 4px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+    .grid-band-genre { font-size: 7px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; color: var(--text-secondary); }
+    .grid-band-dots { display: flex; gap: 2px; }
+    .grid-band-dots .faction-dot { min-width: 16px; height: 14px; font-size: 8px; padding: 0 3px; }
+    .grid-band-star { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); border: 1px solid var(--border-subtle); color: var(--text-muted); border-radius: 1px; padding: 2px 5px; font-size: 11px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.15s; line-height: 1; touch-action: manipulation; }
+    .grid-band-star:hover { color: var(--accent-red); border-color: var(--accent-red-dim); }
+    .grid-band-star.selected { color: var(--accent-red); border-color: var(--accent-red); background: rgba(26,8,8,0.95); text-shadow: 0 0 6px rgba(192,57,43,0.8); }
+
+    /* ── CONFLICTS ── */
+    .conflict-cluster { background: var(--conflict-bg); border: 2px solid var(--accent-red); border-left: 5px solid var(--accent-red); padding: 0; margin-bottom: 8px; position: relative; overflow: hidden; }
+    .conflict-cluster-header { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 11px; letter-spacing: 2px; padding: 7px 10px; background: var(--accent-red); color: #fff; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .conflict-cluster-header .cc-meta { font-family: 'Share Tech Mono', monospace; font-weight: normal; font-size: 10px; opacity: 0.85; letter-spacing: 1px; }
+    .conflict-cluster-band { display: flex; align-items: stretch; gap: 10px; padding: 8px 10px; background: transparent; margin-bottom: 0; border-top: 1px solid rgba(192,57,43,0.25); }
+    .conflict-cluster-band:first-of-type { border-top: none; }
+    .conflict-day-block { margin-bottom: 22px; }
+    .conflict-day-header { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 14px; letter-spacing: 3px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px dashed var(--border-subtle); }
+    .conflict-card { background: rgba(192,57,43,0.05); border: 1px solid #3a1010; padding: 12px; margin-bottom: 8px; }
+    .conflict-vs { display: flex; align-items: center; gap: 10px; }
+    .conflict-band { flex: 1; min-width: 0; text-align: center; }
+    .conflict-band-name { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 14px; color: var(--text-primary); letter-spacing: 1px; text-transform: uppercase; line-height: 1.1; }
+    .conflict-band-meta { display: flex; gap: 8px; margin-top: 3px; font-size: 9px; color: var(--text-muted); flex-wrap: wrap; justify-content: center; }
+    .conflict-vs-sep { flex-shrink: 0; font-size: 22px; color: var(--accent-red); text-shadow: 0 0 15px rgba(192,57,43,0.8); font-family: 'Oswald', sans-serif; }
+
+    /* ── CONSENSUS ── */
+    .consensus-section { margin-bottom: 22px; }
+    .consensus-header { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 4px; text-align: center; margin-bottom: 12px; text-shadow: 0 0 15px currentColor; }
+    .consensus-card { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 11px 13px; margin-bottom: 6px; }
+    .consensus-info { flex: 1; min-width: 0; }
+    .consensus-name { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 15px; color: var(--text-primary); letter-spacing: 1px; text-transform: uppercase; }
+    .consensus-meta { display: flex; gap: 10px; margin-top: 3px; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; flex-wrap: wrap; }
+    .consensus-factions { display: flex; gap: 4px; flex-shrink: 0; }
+
+    /* ── PLAN SECTIONS ── */
+    .plan-section { margin-bottom: 8px; border: 1px solid var(--border-subtle); border-radius: 2px; overflow: hidden; }
+    .plan-section-header { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg-elevated); border: none; cursor: pointer; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 2px; color: var(--text-secondary); touch-action: manipulation; text-align: left; transition: background 0.15s; }
+    .plan-section-header:hover { background: var(--bg-card); color: var(--text-primary); }
+    .plan-section-count { font-family: 'Share Tech Mono', monospace; font-size: 10px; color: var(--text-muted); }
+    .plan-section-body { padding: 0; }
+    .plan-section-body .lineup-poster { border-top: none; border-left: none; border-right: none; border-radius: 0; }
+
+    /* ── NOW PLAYING ── */
+    .now-live { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 12px; letter-spacing: 3px; color: var(--accent-red); border: 1px solid #c0392b; padding: 4px 10px; background: rgba(192,57,43,0.1); box-shadow: 0 0 15px rgba(192,57,43,0.4); flex-shrink: 0; }
+    .now-live .blink { animation: blink 1s step-end infinite; margin-right: 4px; }
+    .now-section { margin-bottom: 22px; }
+    .now-section-header { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: 3px; padding: 8px 12px; margin-bottom: 8px; border-left: 3px solid currentColor; background: rgba(255,255,255,0.02); text-shadow: 0 0 12px currentColor; }
+    .now-standby { text-align: center; padding: 40px 20px; border: 1px dashed var(--border-subtle); background: rgba(192,57,43,0.03); }
+    .standby-icon { font-size: 72px; margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(192,57,43,0.5)); }
+    .standby-title { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 26px; letter-spacing: 5px; color: var(--accent-red); text-shadow: 0 0 20px rgba(192,57,43,0.6); margin-bottom: 24px; }
+    .standby-countdown { display: flex; justify-content: center; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
+    .cd-block { background: rgba(0,0,0,0.5); border: 1px solid #5a1010; padding: 14px 18px; min-width: 80px; }
+    .cd-num { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 38px; line-height: 1; color: var(--text-primary); text-shadow: 0 0 15px rgba(192,57,43,0.6); }
+    .cd-label { font-size: 9px; color: var(--text-muted); letter-spacing: 2px; margin-top: 6px; font-family: 'Share Tech Mono', monospace; }
+    .cd-sep { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 32px; color: var(--accent-red); align-self: center; padding-top: 6px; animation: blink 1.5s step-end infinite; }
+    .standby-text { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--text-muted); line-height: 1.7; letter-spacing: 1px; margin-bottom: 24px; }
+    .standby-start { font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 3px; color: var(--accent-red); padding: 10px; border-top: 1px solid #3a1010; margin-top: 10px; }
+
+    /* ── TIMETABLE GRID NAV ── */
+    .tt-grid-nav { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .tt-swipe-arrow { font-size: 14px; color: var(--accent-red); opacity: 0; pointer-events: none; transition: opacity 0.2s; flex-shrink: 0; font-family: 'Share Tech Mono', monospace; }
+    .tt-arrow-visible { opacity: 0.3; }
+    .tt-day-content { overflow: hidden; }
+    .tt-grid-day-section { margin-bottom: 20px; }
+    .tt-grid-day-header { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 14px; letter-spacing: 3px; padding: 8px 12px; margin-bottom: 8px; border-left: 3px solid; background: rgba(255,255,255,0.02); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+    .tt-grid-day-meta { color: var(--text-muted); font-weight: normal; font-size: 10px; letter-spacing: 2px; }
+    .tt-grid-day-section .grid-container { max-height: 60vh; }
+
+    /* ── MISC ── */
+    .empty { text-align: center; padding: 40px 20px; border: 1px dashed var(--border-subtle); border-radius: 2px; color: var(--text-muted); letter-spacing: 2px; font-size: 12px; }
+    .footer-note { text-align: center; padding: 24px 0; color: var(--text-muted); font-size: 9px; letter-spacing: 2px; line-height: 1.8; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes starPop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+    @keyframes ttSlideInLeft  { from { transform: translateX(60px);  opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes ttSlideInRight { from { transform: translateX(-60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .tt-slide-left  { animation: ttSlideInLeft  0.2s ease-out; }
+    .tt-slide-right { animation: ttSlideInRight 0.2s ease-out; }
+    .popping { animation: starPop 200ms ease-out; }
+    #day-list-container.slide-left  { animation: ttSlideInLeft  0.2s ease-out; }
+    #day-list-container.slide-right { animation: ttSlideInRight 0.2s ease-out; }
+
+    /* ── PWA SPLASH ── */
+    #pwa-splash { position: fixed; inset: 0; z-index: 99999; background: var(--bg-base); transition: opacity 0.5s ease; }
+    #pwa-splash img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+    #pwa-splash.fade-out { opacity: 0; pointer-events: none; }
+
+    /* ── SCROLL TO TOP FAB ── */
+    #scroll-top-btn { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: calc(20px + env(safe-area-inset-right)); width: 48px; height: 48px; border-radius: 50%; background: var(--bg-base); border: 2px solid #c0392b; color: var(--text-primary); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 9000; touch-action: manipulation; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; box-shadow: 0 0 12px rgba(192,57,43,0.4); }
+    #scroll-top-btn.visible { opacity: 1; visibility: visible; }
+
+    /* ── INSTALL HINT ── */
+    #install-hint { position: fixed; bottom: 16px; left: 16px; right: 16px; background: var(--bg-base); border: 1px solid #c0392b; color: var(--text-secondary); font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 1px; line-height: 1.5; padding: 12px 40px 12px 14px; border-radius: 2px; z-index: 9999; opacity: 0; transition: opacity 0.4s ease; box-shadow: 0 0 20px rgba(192,57,43,0.3); }
+    #install-hint.visible { opacity: 1; }
+    #install-hint-close { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); background: none; border: none; color: var(--accent-red); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .stat-value { font-size: 20px; }
+      .band-time { min-width: 48px; padding-right: 8px; }
+      .band-time-start { font-size: 12px; }
+      .band-name { font-size: 15px; }
+      .select-btn { padding: 7px 9px; font-size: 16px; min-width: 36px; }
+      .filter-section { flex-direction: column; }
+      .conflict-vs { flex-direction: column; gap: 6px; }
+      .conflict-cluster-header { flex-direction: column; gap: 2px; }
+      .conflict-vs-sep { transform: rotate(90deg); }
+      .grid-stage-col { flex: 0 0 110px; }
+      .grid-band-name { font-size: 10px; }
+      .grid-band-time { font-size: 8px; }
+      .cd-block { padding: 10px 12px; min-width: 64px; }
+      .cd-num { font-size: 28px; }
+      .standby-countdown { gap: 8px; }
+    }
+    @media (max-width: 600px) {
+      .grid-band { min-height: 32px; }
+      .grid-band-star { min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── DEMO BANNER ── -->
+  <div id="demo-banner" class="demo-banner">
+    🎮 DEMO MODE — picks are saved on this device only.
+    <a href="SETUP.md" target="_blank" rel="noopener">Set up Firebase for group sync →</a>
+    <button class="demo-banner-close" id="demo-banner-close" aria-label="Dismiss demo banner">×</button>
+  </div>
+
+  <!-- ── CREW NAME SETUP MODAL ── -->
+  <div id="setup-modal" class="setup-modal" role="dialog" aria-modal="true" aria-label="Crew setup">
+    <div class="setup-modal-content">
+      <div class="setup-modal-logo">
+        <div class="title" style="font-size:clamp(32px,9vw,56px);text-shadow:3px 3px 0 #8b1a1a">BRUTAL<br><span class="title-sub" style="font-size:clamp(14px,4vw,24px)">🇨🇿 ASSAULT #29</span></div>
+        <div class="title-divider"></div>
+      </div>
+      <div class="setup-modal-title">Welcome to<br>BA29 Festival Battle Plan</div>
+      <div class="setup-modal-sub">Set up your crew before we start</div>
+      <div id="setup-slots"></div>
+      <div id="setup-error" class="setup-error"></div>
+      <button id="setup-submit" class="setup-submit" disabled>START PLANNING</button>
+      <div class="setup-footer">Names are stored only on your device</div>
+    </div>
+  </div>
+
+  <!-- ── PWA SPLASH ── -->
+  <div id="pwa-splash"></div>
+
+  <!-- ── APP ROOT ── -->
+  <div id="root"></div>
+
+  <!-- ── SCROLL TO TOP ── -->
+  <button id="scroll-top-btn" aria-label="Scroll to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- ── HAMBURGER BACKDROP ── -->
+  <div id="hamburger-backdrop" onclick="closeMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;"></div>
+
+  <!-- ── HAMBURGER PANEL ── -->
+  <div id="hamburger-panel" style="position:fixed;top:0;right:0;bottom:0;width:280px;max-width:80vw;background:var(--bg-elevated);border-left:1px solid var(--border-subtle);z-index:10000;transform:translateX(100%);transition:transform 250ms ease-out;overflow-y:auto;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 16px 16px;border-bottom:1px solid var(--border-subtle);">
+      <span style="font-family:'Oswald',sans-serif;font-weight:900;font-size:14px;letter-spacing:3px;color:var(--text-primary);">SETTINGS</span>
+      <button onclick="closeMenu()" style="background:none;border:none;color:var(--text-primary);font-size:24px;cursor:pointer;padding:4px;line-height:1;" aria-label="Close menu">×</button>
+    </div>
+    <div style="padding:20px 16px;">
+
+      <!-- 👤 I AM -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px;">👤 I AM</div>
+      <button onclick="switchPerson()" style="width:100%;min-height:44px;padding:10px 14px;margin-bottom:24px;border-radius:3px;cursor:pointer;touch-action:manipulation;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-align:left;background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);">
+        ↩ SWITCH PERSON
+      </button>
+
+      <!-- 👥 EDIT CREW -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px;">👥 EDIT CREW</div>
+      <button onclick="editCrew()" style="width:100%;min-height:44px;padding:10px 14px;margin-bottom:24px;border-radius:3px;cursor:pointer;touch-action:manipulation;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-align:left;background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);">
+        ✏ EDIT NAMES
+      </button>
+
+      <!-- 🎨 THEME -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px;">🎨 THEME</div>
+      <div style="display:flex;gap:6px;margin-bottom:24px;">
+        <button onclick="setTheme('auto')"  id="theme-btn-auto"  style="flex:1;padding:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;border-radius:3px;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-secondary);touch-action:manipulation;">🌗 AUTO</button>
+        <button onclick="setTheme('light')" id="theme-btn-light" style="flex:1;padding:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;border-radius:3px;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-secondary);touch-action:manipulation;">☀ LIGHT</button>
+        <button onclick="setTheme('dark')"  id="theme-btn-dark"  style="flex:1;padding:8px;font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;border-radius:3px;border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-secondary);touch-action:manipulation;">🌙 DARK</button>
+      </div>
+
+      <!-- 📳 HAPTICS -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px;">📳 HAPTICS</div>
+      <button id="haptics-toggle" onclick="toggleHaptics()" style="width:100%;min-height:44px;padding:10px 14px;margin-bottom:24px;border-radius:3px;cursor:pointer;touch-action:manipulation;font-family:'Oswald',sans-serif;font-weight:700;font-size:13px;letter-spacing:2px;text-align:left;background:var(--bg-card);color:var(--text-primary);border:1px solid var(--border-subtle);">
+        📳
+      </button>
+
+      <!-- ℹ ABOUT -->
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-muted);margin-bottom:10px;">ℹ ABOUT</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-muted);line-height:1.8;letter-spacing:1px;">
+        BA29 FESTIVAL BATTLE PLAN<br>
+        Open source fan project<br>
+        <span style="color:#444">brutalassault.cz</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SERVICE WORKER ── -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then(function (reg) {
+            reg.update();
+          })
+          .catch(function (err) { console.warn('[PWA] SW failed:', err); });
+      });
+    }
+  </script>
+
+  <!-- ── THEME ── -->
+  <script>
+    function applyTheme(mode) {
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = (mode === 'auto') ? (prefersDark ? 'dark' : 'light') : mode;
+    }
+    function setTheme(mode) {
+      localStorage.setItem('ba-theme', mode);
+      applyTheme(mode);
+      updateMenuThemeButtons();
+      triggerHaptic('light');
+    }
+    function updateMenuThemeButtons() {
+      var current = localStorage.getItem('ba-theme') || 'auto';
+      ['auto', 'light', 'dark'].forEach(function (m) {
+        var btn = document.getElementById('theme-btn-' + m);
+        if (!btn) return;
+        btn.style.borderColor = current === m ? 'var(--accent-red)' : 'var(--border-subtle)';
+        btn.style.color = current === m ? 'var(--accent-red)' : 'var(--text-secondary)';
+      });
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+      if ((localStorage.getItem('ba-theme') || 'auto') === 'auto') applyTheme('auto');
+    });
+  </script>
+
+  <!-- ── HAPTICS ── -->
+  <script>
+    function triggerHaptic(type) {
+      if (localStorage.getItem('ba-haptics') === 'off') return;
+      if (!navigator.vibrate) return;
+      var patterns = { light: 10, medium: 25, strong: 50, success: [15,30,15], error: [10,50,10,50,10] };
+      try { navigator.vibrate(patterns[type] || 25); } catch(e) {}
+    }
+    function updateHapticsButton(state) {
+      var btn = document.getElementById('haptics-toggle');
+      if (!btn) return;
+      btn.textContent = state === 'off' ? '📵 HAPTICS OFF' : '📳 HAPTICS ON';
+      btn.setAttribute('aria-label', 'Haptics: ' + (state === 'off' ? 'off' : 'on') + '. Click to toggle.');
+    }
+    function toggleHaptics() {
+      var current = localStorage.getItem('ba-haptics') || 'on';
+      var next = current === 'on' ? 'off' : 'on';
+      localStorage.setItem('ba-haptics', next);
+      updateHapticsButton(next);
+      if (next === 'on') triggerHaptic('medium');
+    }
+    (function () {
+      updateHapticsButton(localStorage.getItem('ba-haptics') || 'on');
+      if (!('vibrate' in navigator)) {
+        var btn = document.getElementById('haptics-toggle');
+        if (btn) btn.style.display = 'none';
+      }
+    })();
+  </script>
+
+  <!-- ── HAMBURGER MENU ── -->
+  <script>
+    function openMenu() {
+      document.getElementById('hamburger-panel').style.transform = 'translateX(0)';
+      document.getElementById('hamburger-backdrop').style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      updateMenuThemeButtons();
+    }
+    function closeMenu() {
+      document.getElementById('hamburger-panel').style.transform = 'translateX(100%)';
+      document.getElementById('hamburger-backdrop').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    function switchPerson() {
+      localStorage.removeItem('fbp-person');
+      closeMenu();
+      location.reload();
+    }
+    function editCrew() {
+      closeMenu();
+      if (window._showSetupModal) window._showSetupModal(true);
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+  </script>
+
+  <!-- ── DEMO BANNER ── -->
+  <script>
+    (function () {
+      if (!window.DEMO_MODE) return;
+      if (sessionStorage.getItem('fbp-demo-banner-dismissed') === '1') return;
+      var banner = document.getElementById('demo-banner');
+      if (banner) banner.style.display = 'flex';
+      document.body.classList.add('demo-banner-visible');
+    })();
+    function dismissDemoBanner() {
+      sessionStorage.setItem('fbp-demo-banner-dismissed', '1');
+      var banner = document.getElementById('demo-banner');
+      if (banner) banner.style.display = 'none';
+      document.body.classList.remove('demo-banner-visible');
+    }
+    var _dbc = document.getElementById('demo-banner-close');
+    if (_dbc) _dbc.onclick = dismissDemoBanner;
+  </script>
+
+  <!-- ── SETUP MODAL ── -->
+  <script>
+    (function () {
+      var modal = document.getElementById('setup-modal');
+      var slotsEl = document.getElementById('setup-slots');
+      var submitBtn = document.getElementById('setup-submit');
+      var errorEl = document.getElementById('setup-error');
+      var _onComplete = null;
+
+      function buildSlots(prefilled) {
+        slotsEl.innerHTML = '';
+        (window.PEOPLE_SLOTS || []).forEach(function (slot) {
+          var row = document.createElement('div');
+          row.className = 'setup-slot';
+          var dot = document.createElement('div');
+          dot.className = 'setup-slot-dot';
+          dot.style.background = slot.color;
+          var inp = document.createElement('input');
+          inp.type = 'text';
+          inp.className = 'setup-slot-input';
+          inp.placeholder = 'Name';
+          inp.maxLength = 20;
+          inp.dataset.slotId = slot.id;
+          inp.setAttribute('autocomplete', 'off');
+          inp.setAttribute('autocorrect', 'off');
+          inp.setAttribute('spellcheck', 'false');
+          if (prefilled && prefilled[slot.id]) inp.value = prefilled[slot.id];
+          inp.addEventListener('input', validate);
+          row.appendChild(dot);
+          row.appendChild(inp);
+          slotsEl.appendChild(row);
+        });
+        validate();
+        var first = slotsEl.querySelector('input');
+        if (first) setTimeout(function () { first.focus(); }, 100);
+      }
+
+      function validate() {
+        var inputs = Array.from(slotsEl.querySelectorAll('input'));
+        var values = inputs.map(function (i) { return i.value.trim(); });
+        var allFilled = values.every(function (v) { return v.length > 0; });
+        var hasDupes = new Set(values.map(function (v) { return v.toLowerCase(); })).size < values.length;
+        if (!allFilled) { errorEl.textContent = ''; submitBtn.disabled = true; return; }
+        if (hasDupes) { errorEl.textContent = 'Each name must be unique.'; submitBtn.disabled = true; return; }
+        errorEl.textContent = '';
+        submitBtn.disabled = false;
+      }
+
+      function show(isEdit) {
+        var prefilled = {};
+        try { prefilled = JSON.parse(localStorage.getItem('fbp-people-names') || '{}'); } catch(e) {}
+        buildSlots(isEdit ? prefilled : {});
+        modal.classList.add('visible');
+      }
+
+      function hide() {
+        modal.classList.remove('visible');
+      }
+
+      submitBtn.addEventListener('click', function () {
+        var inputs = Array.from(slotsEl.querySelectorAll('input'));
+        var names = {};
+        inputs.forEach(function (inp) { names[inp.dataset.slotId] = inp.value.trim(); });
+        localStorage.setItem('fbp-people-names', JSON.stringify(names));
+        if (window.buildPeopleFromConfig) window.buildPeopleFromConfig();
+        hide();
+        if (_onComplete) _onComplete();
+        _onComplete = null;
+      });
+
+      // Called from the module script to check if setup is needed
+      window._needsNameSetup = function () {
+        var names = {};
+        try { names = JSON.parse(localStorage.getItem('fbp-people-names') || '{}'); } catch(e) {}
+        return !(window.PEOPLE_SLOTS || []).every(function (s) { return names[s.id] && names[s.id].trim(); });
+      };
+
+      // Called from module script on first load; called from editCrew() for editing
+      window._showSetupModal = function (isEdit, onComplete) {
+        _onComplete = onComplete || null;
+        show(isEdit);
+      };
+    })();
+  </script>
+
+  <!-- ── PWA SPLASH ── -->
+  <script>
+    (function () {
+      var splash = document.getElementById('pwa-splash');
+      if (!splash) return;
+      var isStandalone = window.navigator.standalone === true ||
+        window.matchMedia('(display-mode: standalone)').matches;
+      if (!isStandalone) { splash.style.display = 'none'; return; }
+      var pw = window.screen.width * window.devicePixelRatio;
+      var ph = window.screen.height * window.devicePixelRatio;
+      var portrait = Math.min(pw, ph) + 'x' + Math.max(pw, ph);
+      var splashes = ['750x1334','828x1792','1125x2436','1170x2532','1179x2556','1242x2208','1242x2688','1284x2778','1290x2796'];
+      var match = splashes.find(function (s) { return s === portrait; }) || '1290x2796';
+      var img = document.createElement('img');
+      img.src = 'splash-' + match + '.png';
+      img.alt = '';
+      splash.appendChild(img);
+      var MIN_MS = 1500, shown = Date.now(), done = false;
+      function hideSplash() {
+        if (done) return; done = true;
+        var delay = Math.max(0, MIN_MS - (Date.now() - shown));
+        setTimeout(function () {
+          splash.classList.add('fade-out');
+          setTimeout(function () { splash.remove(); }, 520);
+        }, delay);
+      }
+      if (document.fonts) { document.fonts.ready.then(hideSplash); }
+      else { window.addEventListener('load', hideSplash); }
+      setTimeout(hideSplash, 4000);
+    })();
+  </script>
+
+  <!-- ── iOS INSTALL HINT ── -->
+  <script>
+    (function () {
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      var isSafari = /safari/i.test(navigator.userAgent) && !/chrome|crios|fxios|opios/i.test(navigator.userAgent);
+      var isStandalone = window.navigator.standalone === true;
+      var dismissed = localStorage.getItem('ba-install-hint-dismissed') === '1';
+      if (!isIOS || !isSafari || isStandalone || dismissed) return;
+      var banner = document.createElement('div');
+      banner.id = 'install-hint';
+      banner.innerHTML = '📱 INSTALL THE APP — Share button → "Add to Home Screen"<button id="install-hint-close" aria-label="Close">×</button>';
+      document.body.appendChild(banner);
+      setTimeout(function () { banner.classList.add('visible'); }, 3000);
+      document.getElementById('install-hint-close').addEventListener('click', function () {
+        banner.classList.remove('visible');
+        localStorage.setItem('ba-install-hint-dismissed', '1');
+        setTimeout(function () { banner.remove(); }, 400);
+      });
+    })();
+  </script>
+
+  <script type="module">
+    // ── DATA (from schedule.js) ──
+    const DAYS       = window.DAYS;
+    const STAGES     = window.STAGES;
+    const GENRES     = window.GENRES;
+    const BAND_GENRES = window.BAND_GENRES;
+    const SCHEDULE   = window.SCHEDULE;
+
+    function slug(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,''); }
+    function bandId(b) { return `${b.d}_${b.s.replace(':','')}_${slug(b.n)}`; }
+    SCHEDULE.forEach(b => { b.id = bandId(b); });
+
+    // ── STATE ──
+    let selections = {};
+    try { selections = JSON.parse(localStorage.getItem('fbp-demo-selections') || '{}'); } catch(e) {}
+
+    let currentPerson = localStorage.getItem('fbp-person') || '';
+    if (currentPerson && !window.PEOPLE.find(p => p.id === currentPerson)) {
+      currentPerson = '';
+      localStorage.removeItem('fbp-person');
+    }
+
+    let mainView   = localStorage.getItem('ba-main-view') || 'lineup';
+    let activeDay  = (() => { const s = localStorage.getItem('ba-active-day'); return s && ['tue','wed','thu','fri','sat'].includes(s) ? s : 'wed'; })();
+    let stageFilter = 'all', genreFilter = 'all';
+    let progFilter  = localStorage.getItem('ba-prog-filter') || 'all';
+    let dayViewMode = localStorage.getItem('ba-view') || 'list';
+    let ttGridDay = null, ttGridSlideDir = null, dayListSlideDir = null;
+
+    let _fbRef = null, _fbUpdate = null, _db = null;
+
+    // ── HELPERS ──
+    const getDayInfo   = id => DAYS.find(d => d.id === id) || DAYS[1];
+    const getStageInfo = id => STAGES.find(s => s.id === id) || STAGES[2];
+    const getPersonInfo = id => window.PEOPLE.find(p => p.id === id) || null;
+    const getGenreInfo = n => GENRES[BAND_GENRES[n] || 'other'] || GENRES.other;
+    const getGenreId   = n => BAND_GENRES[n] || 'other';
+    const spotifyUrl   = n => `https://open.spotify.com/search/${encodeURIComponent(n.replace(/\s*feat\..*$/i,'').replace(/\s*plays.*$/i,'').replace(/·.*$/,'').trim())}`;
+    const toMinutes    = t => { if (!t) return 0; const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
+    const bandStartMinutes = b => { const m = toMinutes(b.s); return m < 240 ? m+1440 : m; };
+    const bandEndMinutes   = b => { let s=toMinutes(b.s),e=toMinutes(b.e); if(e<=s)e+=1440; if(s<240)e+=1440; return e; };
+    function rangesOverlap(a,b) {
+      let aS=toMinutes(a.s),aE=toMinutes(a.e),bS=toMinutes(b.s),bE=toMinutes(b.e);
+      if(aE<=aS)aE+=1440; if(bE<=bS)bE+=1440;
+      if(toMinutes(a.s)<240){aS+=1440;aE+=1440;} if(toMinutes(b.s)<240){bS+=1440;bE+=1440;}
+      return aS<bE&&bS<aE;
+    }
+    function isSectionCollapsed(k){ return localStorage.getItem('ba-section-'+k+'-collapsed')==='1'; }
+    function toggleSection(k){ const n=isSectionCollapsed(k)?null:'1'; n?localStorage.setItem('ba-section-'+k+'-collapsed','1'):localStorage.removeItem('ba-section-'+k+'-collapsed'); render(); }
+    window.toggleSection = toggleSection;
+
+    // ── SELECTIONS ──
+    const isSelected = (bid, pid) => !!(selections[bid] && selections[bid][pid]);
+    const getSelectedPeople = bid => window.PEOPLE.filter(p => selections[bid] && selections[bid][p.id]);
+
+    async function toggleSelection(bid) {
+      const newVal = !isSelected(bid, currentPerson);
+      if (!selections[bid]) selections[bid] = {};
+      selections[bid][currentPerson] = newVal;
+      localStorage.setItem('fbp-demo-selections', JSON.stringify(selections));
+      render();
+      if (!window.DEMO_MODE && _fbRef && _fbUpdate && _db) {
+        try { await _fbUpdate(_fbRef(_db, `ba29/selections/${bid}`), { [currentPerson]: newVal }); }
+        catch(e) { console.warn('Firebase sync failed:', e.message); }
+      }
+    }
+
+    // ── CONFLICT / CONSENSUS DETECTION ──
+    function detectConflicts(pid) {
+      const picks = SCHEDULE.filter(b => isSelected(b.id, pid));
+      const clashes = [], seen = new Set();
+      for (let i=0;i<picks.length;i++) for (let j=i+1;j<picks.length;j++) {
+        if (picks[i].d!==picks[j].d || !rangesOverlap(picks[i],picks[j])) continue;
+        const key=[picks[i].id,picks[j].id].sort().join('|');
+        if (seen.has(key)) continue; seen.add(key);
+        clashes.push({a:picks[i],b:picks[j]});
+      }
+      return clashes;
+    }
+    function detectGroupConflicts() {
+      const byBand = {};
+      window.PEOPLE.forEach(p => SCHEDULE.filter(b=>isSelected(b.id,p.id)).forEach(b=>{
+        if(!byBand[b.id]) byBand[b.id]={band:b,people:[]}; byBand[b.id].people.push(p);
+      }));
+      const entries=Object.values(byBand), clashes=[], seen=new Set();
+      for(let i=0;i<entries.length;i++) for(let j=i+1;j<entries.length;j++){
+        const {band:a,people:pa}=entries[i], {band:b,people:pb}=entries[j];
+        if(a.d!==b.d||!rangesOverlap(a,b)) continue;
+        const aIds=new Set(pa.map(p=>p.id)), bIds=new Set(pb.map(p=>p.id));
+        if(!pa.some(p=>!bIds.has(p.id))||!pb.some(p=>!aIds.has(p.id))) continue;
+        const key=[a.id,b.id].sort().join('|');
+        if(seen.has(key)) continue; seen.add(key);
+        clashes.push({a,b,fa:pa,fb:pb});
+      }
+      return clashes;
+    }
+    function detectConsensus() {
+      return SCHEDULE.map(b=>({band:b,people:window.PEOPLE.filter(p=>isSelected(b.id,p.id)),count:window.PEOPLE.filter(p=>isSelected(b.id,p.id)).length}))
+        .filter(c=>c.count>=1).sort((a,b)=>{
+          if(b.count!==a.count) return b.count-a.count;
+          const dO=['tue','wed','thu','fri','sat'], dd=dO.indexOf(a.band.d)-dO.indexOf(b.band.d);
+          return dd||bandStartMinutes(a.band)-bandStartMinutes(b.band);
+        });
+    }
+
+    // ── RENDER HELPERS ──
+    function viewToggle() {
+      return `<div class="view-toggle">
+        <button class="vt-btn ${dayViewMode==='list'?'vt-active':''}" data-vmode="list">📋 LIST</button>
+        <button class="vt-btn ${dayViewMode==='grid'?'vt-active':''}" data-vmode="grid">📊 GRID</button>
+      </div>`;
+    }
+    function posterHeaderForDay(dayInfo, totalCount, myCount) {
+      return `<div class="poster-header">
+        <div class="poster-emoji">${dayInfo.emoji}</div>
+        <div class="poster-title-block">
+          <div class="poster-presents">BRUTAL ASSAULT // PRESENTS</div>
+          <div class="poster-date" style="color:${dayInfo.color}">${dayInfo.date}</div>
+          <div class="poster-sub">${dayInfo.sub} · ${totalCount} BANDS</div>
+        </div>
+        <div class="poster-count" style="color:${dayInfo.color}">${myCount}<br><span>MINE</span></div>
+      </div>`;
+    }
+    function personDots(bid) {
+      return getSelectedPeople(bid).map(p=>`<span class="faction-dot" style="background:var(--person-${p.id})" title="${p.name||p.id}">${p.short}</span>`).join('');
+    }
+
+    // ── BAND ROW ──
+    function bandRow(band) {
+      const stage=getStageInfo(band.st), mySelected=isSelected(band.id,currentPerson);
+      const selPeople=getSelectedPeople(band.id), fullConsensus=selPeople.length===window.PEOPLE.length;
+      return `<div class="band-row ${mySelected?'band-row-mine':''} ${fullConsensus?'band-row-consensus':''}" data-bid="${band.id}" data-start-min="${bandStartMinutes(band)}" data-end-min="${bandEndMinutes(band)}">
+        <div class="band-time"><div class="band-time-start">${band.s}</div><div class="band-time-sep">─</div><div class="band-time-end">${band.e}</div></div>
+        <div class="band-body">
+          <div class="band-name">${band.n}</div>
+          <div class="band-meta">
+            <span class="band-stage">${stage.short}</span>
+            <span class="band-genre">${getGenreInfo(band.n).l}</span>
+            <a class="spotify-link" href="${spotifyUrl(band.n)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Search on Spotify">🎧</a>
+            ${selPeople.length?`<span class="band-factions">${personDots(band.id)}</span>`:''}
+            ${fullConsensus?`<span class="consensus-tag">★ ALL</span>`:''}
+          </div>
+        </div>
+        <button class="select-btn ${mySelected?'selected':''}" data-bid="${band.id}" title="${mySelected?'Deselect':'Pick'}">${mySelected?'★':'☆'}</button>
+      </div>`;
+    }
+
+    // ── CONFLICT CLUSTER ──
+    function renderConflictCluster(bands) {
+      const earliest=bands[0].s;
+      const personBandMap={};
+      bands.forEach(b=>getSelectedPeople(b.id).forEach(p=>{(personBandMap[p.id]||=[]).push(b);}));
+      const personalConflicts=Object.values(personBandMap).filter(bs=>bs.length>1).length;
+      const isGroupSplit=Object.keys(personBandMap).length>1;
+      return `<div class="conflict-cluster">
+        <div class="conflict-cluster-header">
+          <span>⚔ CLASH from ${earliest}</span>
+          <span class="cc-meta">${bands.length} BANDS${isGroupSplit?' · GROUP SPLITS':''}${personalConflicts?` · ${personalConflicts}× PERSONAL`:''}</span>
+        </div>
+        ${bands.map(band=>{
+          const stage=getStageInfo(band.st), mySelected=isSelected(band.id,currentPerson);
+          return `<div class="conflict-cluster-band ${mySelected?'band-row-mine':''}">
+            <div class="band-time"><div class="band-time-start">${band.s}</div><div class="band-time-sep">─</div><div class="band-time-end">${band.e}</div></div>
+            <div class="band-body">
+              <div class="band-name">${band.n}</div>
+              <div class="band-meta"><span class="band-stage">${stage.short}</span><span class="band-genre">${getGenreInfo(band.n).l}</span>
+                <a class="spotify-link" href="${spotifyUrl(band.n)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🎧</a>
+                ${getSelectedPeople(band.id).length?`<span class="band-factions">${personDots(band.id)}</span>`:''}
+              </div>
+            </div>
+            <button class="select-btn ${mySelected?'selected':''}" data-bid="${band.id}">${mySelected?'★':'☆'}</button>
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    // ── TIMETABLE (list + grid) ──
+    function buildTimetableClusters(dayBands) {
+      let clusters=[];
+      for(const band of dayBands){
+        const oi=[];
+        clusters.forEach((c,i)=>{ if(c.some(b=>rangesOverlap(b,band))) oi.push(i); });
+        if(!oi.length) clusters.push([band]);
+        else if(oi.length===1) clusters[oi[0]].push(band);
+        else { const m=[band]; oi.forEach(i=>m.push(...clusters[i])); clusters=clusters.filter((_,i)=>!oi.includes(i)); clusters.push(m); }
+      }
+      clusters.forEach(c=>c.sort((a,b)=>bandStartMinutes(a)-bandStartMinutes(b)));
+      clusters.sort((a,b)=>bandStartMinutes(a[0])-bandStartMinutes(b[0]));
+      return clusters;
+    }
+    function renderTimetableList(dayOverride) {
+      const day=dayOverride||activeDay;
+      let all=SCHEDULE.filter(b=>window.PEOPLE.some(p=>isSelected(b.id,p.id)));
+      if(stageFilter!=='all') all=all.filter(b=>b.st===stageFilter);
+      if(genreFilter!=='all') all=all.filter(b=>getGenreId(b.n)===genreFilter);
+      const dayBands=all.filter(b=>b.d===day).sort((a,b)=>bandStartMinutes(a)-bandStartMinutes(b));
+      if(!dayBands.length) return `<div class="empty" style="padding:32px 0"><div style="font-size:36px;margin-bottom:8px">📅</div><div>NO PICKS FOR THIS DAY.</div></div>`;
+      const clusters=buildTimetableClusters(dayBands);
+      return `<div class="schedule-list">${clusters.map(c=>c.length===1?bandRow(c[0]):renderConflictCluster(c)).join('')}</div>`;
+    }
+    function renderTimetableGrid() {
+      let all=SCHEDULE.filter(b=>window.PEOPLE.some(p=>isSelected(b.id,p.id)));
+      if(stageFilter!=='all') all=all.filter(b=>b.st===stageFilter);
+      if(genreFilter!=='all') all=all.filter(b=>getGenreId(b.n)===genreFilter);
+      const dayBands=all.filter(b=>b.d===activeDay).sort((a,b)=>bandStartMinutes(a)-bandStartMinutes(b));
+      if(!dayBands.length) return `<div class="empty" style="padding:32px 0"><div style="font-size:36px;margin-bottom:8px">📅</div><div>NO PICKS FOR THIS DAY.</div></div>`;
+      const clashCount=buildTimetableClusters(dayBands).filter(c=>c.length>1).length;
+      const d=getDayInfo(activeDay);
+      const slideClass=ttGridSlideDir==='left'?'tt-slide-left':ttGridSlideDir==='right'?'tt-slide-right':'';
+      return `<div class="grid-help">↕ SCROLL: TIME · ↔ SCROLL: STAGES</div>
+        <div class="tt-day-content ${slideClass}">${renderTimetableGridSection(d,dayBands,clashCount)}</div>`;
+    }
+    function renderTimetable() { return dayViewMode==='grid'?renderTimetableGrid():renderTimetableList(); }
+
+    function renderTimetableGridSection(dayInfo, dayBands, clashCount) {
+      const stagesInDay=STAGES.filter(s=>dayBands.some(b=>b.st===s.id));
+      const allS=dayBands.map(b=>bandStartMinutes(b)), allE=dayBands.map(b=>bandEndMinutes(b));
+      const startH=Math.floor(Math.min(...allS)/60), endH=Math.ceil(Math.max(...allE)/60);
+      const PX=1.8, gh=(endH-startH)*60*PX;
+      let hourLabels='';
+      for(let h=startH;h<=endH;h++) hourLabels+=`<div class="grid-hour" style="top:${(h-startH)*60*PX}px">${String(h%24).padStart(2,'0')}:00</div>`;
+      const cols=stagesInDay.map(stage=>{
+        const blocks=dayBands.filter(b=>b.st===stage.id).map(band=>{
+          let s=toMinutes(band.s),e=toMinutes(band.e); if(e<=s)e+=1440; if(toMinutes(band.s)<240){s+=1440;e+=1440;}
+          const top=(s-startH*60)*PX, h=(e-s)*PX;
+          const myS=isSelected(band.id,currentPerson), selP=getSelectedPeople(band.id), fc=selP.length===window.PEOPLE.length;
+          return `<div class="grid-band ${myS?'grid-band-mine':''} ${fc?'grid-band-consensus':''}" style="top:${top}px;height:${h}px;border-color:${stage.color};background:linear-gradient(135deg,${stage.color}30,${stage.color}12);" data-bid="${band.id}">
+            <div class="grid-band-time">${band.s}</div><div class="grid-band-name">${band.n}</div>
+            <div class="grid-band-bottom"><span class="grid-band-genre">${getGenreInfo(band.n).l}</span>${selP.length?`<span class="grid-band-dots">${selP.map(p=>`<span class="faction-dot" style="background:var(--person-${p.id})">${p.short}</span>`).join('')}</span>`:''}</div>
+            <button class="grid-band-star ${myS?'selected':''}" data-bid="${band.id}">${myS?'★':'☆'}</button>
+          </div>`;
+        }).join('');
+        return `<div class="grid-stage-col" style="height:${gh}px"><div class="grid-stage-header">${stage.short}</div><div class="grid-stage-body" style="height:${gh}px">${blocks}</div></div>`;
+      }).join('');
+      return `<div class="tt-grid-day-section">
+        <div class="tt-grid-day-header" style="color:${dayInfo.color};border-color:${dayInfo.color}60">${dayInfo.emoji} ${dayInfo.date}<span class="tt-grid-day-meta">${dayBands.length} BANDS · ${clashCount} CLASHES</span></div>
+        <div class="grid-container"><div class="grid-time-col" style="height:${gh+28}px"><div class="grid-stage-header"></div><div class="grid-time-body" style="height:${gh}px">${hourLabels}</div></div><div class="grid-stages-area">${cols}</div></div>
+      </div>`;
+    }
+
+    // ── DAY GRID (full lineup view) ──
+    function renderDayGrid(dayId) {
+      const dayInfo=getDayInfo(dayId), dayBands=SCHEDULE.filter(b=>b.d===dayId);
+      const totalCount=dayBands.length, myCountInDay=dayBands.filter(b=>isSelected(b.id,currentPerson)).length;
+      if(!dayBands.length) return `<div class="lineup-poster" style="--day-color:${dayInfo.color}">${posterHeaderForDay(dayInfo,0,0)}${viewToggle()}<div class="empty">NO BANDS.</div></div>`;
+      const stagesInDay=STAGES.filter(s=>dayBands.some(b=>b.st===s.id));
+      const allS=dayBands.map(b=>bandStartMinutes(b)), allE=dayBands.map(b=>bandEndMinutes(b));
+      const startH=Math.floor(Math.min(...allS)/60), endH=Math.ceil(Math.max(...allE)/60);
+      const PX=1.8, gh=(endH-startH)*60*PX;
+      let hourLabels='';
+      for(let h=startH;h<=endH;h++) hourLabels+=`<div class="grid-hour" style="top:${(h-startH)*60*PX}px">${String(h%24).padStart(2,'0')}:00</div>`;
+      const cols=stagesInDay.map(stage=>{
+        const blocks=dayBands.filter(b=>b.st===stage.id).map(band=>{
+          let s=toMinutes(band.s),e=toMinutes(band.e); if(e<=s)e+=1440; if(toMinutes(band.s)<240){s+=1440;e+=1440;}
+          const top=(s-startH*60)*PX, h=(e-s)*PX;
+          const myS=isSelected(band.id,currentPerson), selP=getSelectedPeople(band.id), fc=selP.length===window.PEOPLE.length;
+          return `<div class="grid-band ${myS?'grid-band-mine':''} ${fc?'grid-band-consensus':''}" style="top:${top}px;height:${h}px;border-color:${stage.color};background:linear-gradient(135deg,${stage.color}25,${stage.color}10);" data-bid="${band.id}">
+            <div class="grid-band-time">${band.s}</div><div class="grid-band-name">${band.n}</div>
+            <div class="grid-band-bottom"><span class="grid-band-genre">${getGenreInfo(band.n).l}</span>${selP.length?`<span class="grid-band-dots">${selP.map(p=>`<span class="faction-dot" style="background:var(--person-${p.id})">${p.short}</span>`).join('')}</span>`:''}</div>
+            <button class="grid-band-star ${myS?'selected':''}" data-bid="${band.id}">${myS?'★':'☆'}</button>
+          </div>`;
+        }).join('');
+        return `<div class="grid-stage-col" style="height:${gh}px"><div class="grid-stage-header">${stage.short}</div><div class="grid-stage-body" style="height:${gh}px">${blocks}</div></div>`;
+      }).join('');
+      return `<div class="lineup-poster" style="--day-color:${dayInfo.color}">
+        ${posterHeaderForDay(dayInfo,totalCount,myCountInDay)}${viewToggle()}
+        <div class="grid-help">↕ SCROLL: TIME · ↔ SCROLL: STAGES · ★ CLICK: PICK</div>
+        <div class="grid-container"><div class="grid-time-col" style="height:${gh+28}px"><div class="grid-stage-header"></div><div class="grid-time-body" style="height:${gh}px">${hourLabels}</div></div><div class="grid-stages-area">${cols}</div></div>
+      </div>`;
+    }
+
+    // ── DAY LIST ──
+    function renderDayList(dayId) {
+      const dayInfo=getDayInfo(dayId), me=getPersonInfo(currentPerson);
+      let dayBands=SCHEDULE.filter(b=>b.d===dayId);
+      const totalCount=dayBands.length, myCountInDay=dayBands.filter(b=>isSelected(b.id,currentPerson)).length;
+      if(stageFilter!=='all') dayBands=dayBands.filter(b=>b.st===stageFilter);
+      if(genreFilter!=='all') dayBands=dayBands.filter(b=>getGenreId(b.n)===genreFilter);
+      if(progFilter==='mine') dayBands=dayBands.filter(b=>isSelected(b.id,currentPerson));
+      dayBands.sort((a,b)=>bandStartMinutes(a)-bandStartMinutes(b));
+      const dayConflicts=detectConflicts(currentPerson).filter(c=>c.a.d===dayId);
+      const kfCollapsed=isSectionCollapsed('conflicts');
+      return `<div class="lineup-poster" style="--day-color:${dayInfo.color}">
+        ${posterHeaderForDay(dayInfo,totalCount,myCountInDay)}${viewToggle()}
+        ${!dayBands.length?`<div class="empty"><div style="font-size:48px;margin-bottom:12px">💀</div><div>NO BANDS FOUND.</div><div style="font-size:12px;margin-top:6px;color:#555">CHANGE FILTER OR SELECT ANOTHER DAY.</div></div>`:`<div class="schedule-list" id="day-list-container">${dayBands.map(b=>bandRow(b)).join('')}</div>`}
+      </div>
+      ${dayConflicts.length?`<div class="plan-section">
+        <button class="plan-section-header" onclick="toggleSection('conflicts')">
+          <span>${kfCollapsed?'▶':'▼'} ⚠ CONFLICTS</span><span class="plan-section-count">${dayConflicts.length}</span>
+        </button>
+        ${kfCollapsed?'':`<div class="plan-section-body">${renderConflictsBlock(dayConflicts)}</div>`}
+      </div>`:''}`;
+    }
+
+    function renderDay(dayId) {
+      if(dayId==='all') return DAYS.map(d=>renderDayList(d.id)).join('');
+      return dayViewMode==='grid'?renderDayGrid(dayId):renderDayList(dayId);
+    }
+
+    // ── GROUP PLAN (timetable) ──
+    function renderPlanView(myPicks) {
+      if(activeDay==='all') return DAYS.map(d=>{
+        const all=SCHEDULE.filter(b=>window.PEOPLE.some(p=>isSelected(b.id,p.id))).filter(b=>b.d===d.id);
+        const myC=myPicks.filter(b=>b.d===d.id).length;
+        return `<div class="lineup-poster" style="--day-color:${d.color}">
+          <div class="poster-header"><div class="poster-emoji">${d.emoji}</div><div class="poster-title-block"><div class="poster-presents">BRUTAL ASSAULT // PRESENTS</div><div class="poster-date" style="color:${d.color}">${d.date}</div><div class="poster-sub">${d.sub} · ${all.length} PICKS</div></div><div class="poster-count" style="color:${d.color}">${myC}<br><span>MINE</span></div></div>
+          ${renderTimetableList(d.id)}
+        </div>`;
+      }).join('');
+      const dayInfo=getDayInfo(activeDay);
+      const all=SCHEDULE.filter(b=>window.PEOPLE.some(p=>isSelected(b.id,p.id))).filter(b=>b.d===activeDay);
+      const myC=myPicks.filter(b=>b.d===activeDay).length;
+      return `<div class="lineup-poster" style="--day-color:${dayInfo.color}">
+        <div class="poster-header"><div class="poster-emoji">${dayInfo.emoji}</div><div class="poster-title-block"><div class="poster-presents">BRUTAL ASSAULT // PRESENTS</div><div class="poster-date" style="color:${dayInfo.color}">${dayInfo.date}</div><div class="poster-sub">${dayInfo.sub} · ${all.length} PICKS</div></div><div class="poster-count" style="color:${dayInfo.color}">${myC}<br><span>MINE</span></div></div>
+        ${viewToggle()}${renderTimetable()}
+      </div>`;
+    }
+
+    // ── GROUP CONFLICTS ──
+    function renderGroupConflicts(clashes) {
+      const byDay={};
+      clashes.forEach(c=>{(byDay[c.a.d]||=[]).push(c);});
+      return `<div class="lineup-poster" style="--day-color:#c0392b">
+        <div class="poster-header"><div class="poster-emoji">⚔</div><div class="poster-title-block"><div class="poster-presents">GROUP // CONFLICTS</div><div class="poster-date" style="color:#c0392b">TIME CLASHES</div><div class="poster-sub">WHEN THE GROUP HAS TO SPLIT</div></div><div class="poster-count" style="color:#c0392b">${clashes.length}<br><span>CLASHES</span></div></div>
+        ${!clashes.length?`<div class="empty"><div style="font-size:48px;margin-bottom:12px">🤝</div><div>NO CONFLICTS!</div><div style="font-size:12px;margin-top:6px;color:#555">ALL PICKS ARE COMPATIBLE.</div></div>`
+        :DAYS.filter(d=>byDay[d.id]).map(d=>`<div class="conflict-day-block">
+          <div class="conflict-day-header" style="color:${d.color}">${d.emoji} ${d.date}</div>
+          ${byDay[d.id].map(c=>{
+            const sA=getStageInfo(c.a.st), sB=getStageInfo(c.b.st);
+            return `<div class="conflict-card"><div class="conflict-vs">
+              <div class="conflict-band"><div class="conflict-band-name">${c.a.n}</div><div class="conflict-band-meta"><span>${c.a.s}–${c.a.e}</span><span style="color:${sA.color}">${sA.short}</span></div><div style="font-size:10px;margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;justify-content:center">${c.fa.map(p=>`<span style="color:var(--person-${p.id})">${p.name||p.id}</span>`).join('')}</div></div>
+              <div class="conflict-vs-sep">⚔</div>
+              <div class="conflict-band"><div class="conflict-band-name">${c.b.n}</div><div class="conflict-band-meta"><span>${c.b.s}–${c.b.e}</span><span style="color:${sB.color}">${sB.short}</span></div><div style="font-size:10px;margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;justify-content:center">${c.fb.map(p=>`<span style="color:var(--person-${p.id})">${p.name||p.id}</span>`).join('')}</div></div>
+            </div></div>`;
+          }).join('')}
+        </div>`).join('')}
+      </div>`;
+    }
+
+    // ── PERSONAL CONFLICTS ──
+    function renderConflictsBlock(conflicts) {
+      const me=getPersonInfo(currentPerson), byDay={};
+      conflicts.forEach(c=>{(byDay[c.a.d]||=[]).push(c);});
+      return `<div class="lineup-poster" style="--day-color:#c0392b">
+        <div class="poster-header"><div class="poster-emoji">⚠</div><div class="poster-title-block"><div class="poster-presents">BATTLE PLAN // CONFLICTS</div><div class="poster-date" style="color:${me?me.color:'#c0392b'}">${me?me.name||me.id:''}</div><div class="poster-sub">YOUR TIME CLASHES</div></div><div class="poster-count" style="color:#c0392b">${conflicts.length}<br><span>CLASHES</span></div></div>
+        ${!conflicts.length?`<div class="empty"><div style="font-size:48px;margin-bottom:12px">✅</div><div>NO CONFLICTS! 🤘</div><div style="font-size:12px;margin-top:6px;color:#555">YOUR PICKS ARE CONFLICT-FREE.</div></div>`
+        :DAYS.filter(d=>byDay[d.id]).map(d=>`<div class="conflict-day-block">
+          <div class="conflict-day-header" style="color:${d.color}">${d.emoji} ${d.date}</div>
+          ${byDay[d.id].map(c=>{
+            const sA=getStageInfo(c.a.st), sB=getStageInfo(c.b.st);
+            return `<div class="conflict-card"><div class="conflict-vs">
+              <div class="conflict-band"><div class="conflict-band-name">${c.a.n}</div><div class="conflict-band-meta"><span>${c.a.s}–${c.a.e}</span><span style="color:${sA.color}">${sA.short}</span></div><button class="select-btn select-mini" data-bid="${c.a.id}" title="Deselect">★</button></div>
+              <div class="conflict-vs-sep">⚔</div>
+              <div class="conflict-band"><div class="conflict-band-name">${c.b.n}</div><div class="conflict-band-meta"><span>${c.b.s}–${c.b.e}</span><span style="color:${sB.color}">${sB.short}</span></div><button class="select-btn select-mini" data-bid="${c.b.id}" title="Deselect">★</button></div>
+            </div></div>`;
+          }).join('')}
+        </div>`).join('')}
+      </div>`;
+    }
+
+    // ── NOW PLAYING ──
+    function detectFestivalNow() {
+      const now=new Date(), festStart=new Date('2026-08-04T12:00:00'), festEnd=new Date('2026-08-09T03:30:00');
+      if(now<festStart||now>festEnd) return null;
+      const hoursIntoFest=(now-festStart)/3600000, dayIndex=Math.floor(hoursIntoFest/24);
+      const dayId=['tue','wed','thu','fri','sat'][Math.min(dayIndex,4)];
+      const time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      if(now.getHours()<4&&dayIndex>0) return {day:['tue','wed','thu','fri','sat'][dayIndex-1],time,isLive:true};
+      return {day:dayId,time,isLive:true};
+    }
+    function renderNow() {
+      const live=detectFestivalNow();
+      if(!live) {
+        const festStart=new Date('2026-08-04T14:00:00'), now=new Date(), isAfter=now>festStart, diffMs=festStart-now;
+        const days=Math.floor(diffMs/86400000), hours=Math.floor((diffMs%86400000)/3600000), minutes=Math.floor((diffMs%3600000)/60000);
+        return `<div class="lineup-poster" style="--day-color:#5a3e1b">
+          <div class="poster-header"><div class="poster-emoji">⏳</div><div class="poster-title-block"><div class="poster-presents">BATTLE PLAN // STANDBY</div><div class="poster-date" style="color:#c0392b">${isAfter?'FESTIVAL OVER':'NOT STARTED YET'}</div><div class="poster-sub">FORTRESS IS WAITING</div></div></div>
+          ${isAfter?`<div class="now-standby"><div class="standby-icon">🏴</div><div class="standby-title">THAT'S A WRAP</div><div class="standby-text">Brutal Assault #29 is history.<br>See you next year! 🤘</div></div>`
+          :`<div class="now-standby"><div class="standby-icon">💀</div><div class="standby-title">${days} DAYS TO GO</div>
+            <div class="standby-countdown">
+              <div class="cd-block"><div class="cd-num">${days}</div><div class="cd-label">DAYS</div></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-block"><div class="cd-num">${String(hours).padStart(2,'0')}</div><div class="cd-label">HOURS</div></div>
+              <div class="cd-sep">:</div>
+              <div class="cd-block"><div class="cd-num">${String(minutes).padStart(2,'0')}</div><div class="cd-label">MINUTES</div></div>
+            </div>
+            <div class="standby-text">This tab shows live bands during the festival.<br><br>Until then: <strong style="color:#c0392b">⚔ DAY TABS</strong> to pick bands<br>and <strong style="color:#c0392b">👥 GROUP PLAN</strong> for the group schedule.</div>
+            <div class="standby-start">START: TUE AUG 4 · 14:40 · OBSCURE STAGE<br><span style="color:#888;font-size:10px">PATRIARCHA opens the gates</span></div>
+          </div>`}
+        </div>`;
+      }
+      const dayInfo=getDayInfo(live.day), time=live.time;
+      const currentMin=toMinutes(time)<240?toMinutes(time)+1440:toMinutes(time);
+      const dayBands=SCHEDULE.filter(b=>b.d===live.day);
+      function bRange(b){let s=toMinutes(b.s),e=toMinutes(b.e);if(e<=s)e+=1440;if(toMinutes(b.s)<240){s+=1440;e+=1440;}return[s,e];}
+      const playing=dayBands.filter(b=>{const[s,e]=bRange(b);return s<=currentMin&&currentMin<e;}).sort((a,b)=>bRange(a)[0]-bRange(b)[0]);
+      const upNext=dayBands.filter(b=>{const[s]=bRange(b);return s>currentMin&&s<=currentMin+90;}).sort((a,b)=>bRange(a)[0]-bRange(b)[0]);
+      return `<div class="lineup-poster" style="--day-color:${dayInfo.color}">
+        <div class="poster-header"><div class="poster-emoji">▶</div><div class="poster-title-block"><div class="poster-presents">BATTLE PLAN // LIVE</div><div class="poster-date" style="color:${dayInfo.color}">NOW</div><div class="poster-sub">${dayInfo.date} · ${time}</div></div><div class="now-live"><span class="blink">●</span> LIVE</div></div>
+        <div class="now-section"><div class="now-section-header" style="color:#c0392b">▶ NOW PLAYING (${playing.length})</div>
+          ${!playing.length?`<div class="empty" style="padding:20px">NO BAND AT THIS TIME.</div>`:`<div class="schedule-list">${playing.map(b=>bandRow(b)).join('')}</div>`}
+        </div>
+        ${upNext.length?`<div class="now-section"><div class="now-section-header" style="color:#f39c12">⏭ UP NEXT (NEXT 90 MIN · ${upNext.length})</div><div class="schedule-list">${upNext.map(b=>bandRow(b)).join('')}</div></div>`:''}
+      </div>`;
+    }
+
+    // ── PERSON PICK SCREEN ──
+    function personPickScreen() {
+      return `<div class="noise"></div><div class="scanlines"></div>
+        <div class="faction-pick">
+          <div class="header" style="border:none;padding-bottom:0;margin-bottom:24px">
+            <div class="header-tag">// BATTLE PLAN INITIALIZATION //</div>
+            <h1 class="title">BRUTAL<br><span class="title-sub">🇨🇿 ASSAULT 2026</span></h1>
+            <div class="title-divider"></div>
+          </div>
+          <div class="section-card" style="text-align:center">
+            <div class="section-header"><span class="skull">☠</span> WHO ARE YOU? <span class="skull">☠</span></div>
+            <div style="font-size:12px;color:#888;letter-spacing:2px;margin-bottom:20px">SELECT YOURSELF</div>
+            <div class="faction-grid">
+              ${window.PEOPLE.map(p=>`<button class="faction-pick-btn" data-person="${p.id}" style="border-color:${p.color};color:${p.color}">
+                <div style="font-size:28px;margin-bottom:6px">⚔</div>
+                <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:900;letter-spacing:3px">${p.name||p.id}</div>
+              </button>`).join('')}
+            </div>
+            <div style="font-size:10px;color:#444;letter-spacing:2px;margin-top:18px">YOUR SELECTION IS STORED LOCALLY ON THIS DEVICE</div>
+          </div>
+        </div>`;
+    }
+
+    // ── MAIN RENDER ──
+    function render() {
+      const root = document.getElementById('root');
+      if (!currentPerson) {
+        root.innerHTML = personPickScreen();
+        root.querySelectorAll('.faction-pick-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            currentPerson = btn.dataset.person;
+            localStorage.setItem('fbp-person', currentPerson);
+            render();
+          });
+        });
+        return;
+      }
+
+      const me = getPersonInfo(currentPerson);
+      const myPicks = SCHEDULE.filter(b => isSelected(b.id, currentPerson));
+      const conflicts = detectConflicts(currentPerson);
+      const groupPicksCount = SCHEDULE.filter(b => window.PEOPLE.some(p => isSelected(b.id, p.id))).length;
+
+      const tripDate = new Date('2026-08-04T14:40:00'), diff = Math.ceil((tripDate - new Date()) / 86400000);
+      const countdown = diff > 0 ? `T-${diff} DAYS` : diff === 0 ? 'ATTACK NOW' : 'FESTIVAL IS LIVE';
+
+      const stagesForFilter = progFilter === 'group'
+        ? STAGES.filter(s => SCHEDULE.some(b => b.st === s.id && window.PEOPLE.some(p => isSelected(b.id, p.id))))
+        : activeDay === 'all' ? STAGES.filter(s => SCHEDULE.some(b => b.st === s.id))
+        : STAGES.filter(s => SCHEDULE.some(b => b.d === activeDay && b.st === s.id));
+      const genresForFilter = progFilter === 'group'
+        ? Object.entries(GENRES).filter(([gid]) => SCHEDULE.some(b => window.PEOPLE.some(p => isSelected(b.id, p.id)) && getGenreId(b.n) === gid))
+        : activeDay === 'all' ? Object.entries(GENRES).filter(([gid]) => SCHEDULE.some(b => getGenreId(b.n) === gid))
+        : Object.entries(GENRES).filter(([gid]) => SCHEDULE.some(b => b.d === activeDay && getGenreId(b.n) === gid));
+
+      root.innerHTML = `
+        <div class="noise"></div><div class="scanlines"></div>
+        <div class="header">
+          <div class="header-tag">// BATTLE PLAN // AUG 4–8, 2026 //</div>
+          <h1 class="title">BRUTAL<br><span class="title-sub">🇨🇿 ASSAULT #29</span></h1>
+          <div class="title-divider"></div>
+          <div class="countdown-block"><span class="countdown-label">STATUS</span><span class="countdown-value">${countdown}</span><span class="countdown-label">JOSEFOV</span></div>
+          <div class="faction-bar">
+            <span class="faction-label">I AM:</span>
+            <span class="faction-name" style="color:${me?me.color:'#c0392b'};border-color:${me?me.color:'#c0392b'}">⚔ ${me?me.name||me.id:''}</span>
+            <button onclick="openMenu()" style="background:var(--bg-elevated);border:1px solid var(--border-subtle);color:var(--text-primary);cursor:pointer;touch-action:manipulation;font-size:16px;padding:4px 10px;border-radius:3px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;" aria-label="Open settings">☰</button>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box"><div class="stat-value" style="color:${me?me.color:'#c0392b'}">${myPicks.length}</div><div class="stat-label">MY PICKS</div></div>
+          <div class="stat-box ${conflicts.length>0?'stat-warn':''}"><div class="stat-value" style="color:${conflicts.length>0?'#c0392b':'#27ae60'}">${conflicts.length}</div><div class="stat-label">MY CONFLICTS</div></div>
+          <div class="stat-box"><div class="stat-value" style="color:#27ae60">${groupPicksCount}</div><div class="stat-label">GROUP PICKS</div></div>
+          <div class="stat-box"><div class="stat-value">${SCHEDULE.length}</div><div class="stat-label">TOTAL BANDS</div></div>
+        </div>
+
+        <div class="view-tabs-bar">
+          <button class="view-tab-btn ${mainView==='lineup'?'view-tab-active':''}" data-main-view="lineup">📋 LINEUP</button>
+          <button class="view-tab-btn ${mainView==='now'?'view-tab-active':''}" data-main-view="now">▶ NOW</button>
+        </div>
+
+        ${mainView==='now' ? renderNow() : `
+        <div class="tabs day-tabs">
+          <button class="tab ${activeDay==='all'?'tab-active':''}" data-day="all">🗓 ALL</button>
+          ${DAYS.map(d=>`<button class="tab ${activeDay===d.id?'tab-active':''}" data-day="${d.id}">${d.emoji} ${d.short}</button>`).join('')}
+        </div>
+
+        <div class="filter-section"><div class="filter-row">
+          <button class="chip ${progFilter==='all'?'chip-active':''}" data-prog-filter="all">ALL BANDS</button>
+          <button class="chip ${progFilter==='mine'?'chip-active':''}" data-prog-filter="mine" style="${progFilter==='mine'?`color:${me?me.color:'#c0392b'};border-color:${me?me.color:'#c0392b'}`:''}">MINE</button>
+          <button class="chip ${progFilter==='group'?'chip-active':''}" data-prog-filter="group">GROUP PLAN</button>
+          <button class="chip ${progFilter==='clashes'?'chip-active':''}" data-prog-filter="clashes" style="${progFilter==='clashes'?'color:#c0392b;border-color:#c0392b':''}">⚔ CONFLICTS</button>
+        </div></div>
+        <div class="filter-section"><div class="filter-row">
+          <button class="chip ${stageFilter==='all'?'chip-active':''}" data-stage-filter="all">ALL STAGES</button>
+          ${stagesForFilter.map(s=>`<button class="chip ${stageFilter===s.id?'chip-active':''}" data-stage-filter="${s.id}" style="${stageFilter===s.id?`color:${s.color};border-color:${s.color}`:''}">  ${s.short}</button>`).join('')}
+        </div></div>
+        <div class="filter-section"><div class="filter-row">
+          <button class="chip ${genreFilter==='all'?'chip-active':''}" data-genre-filter="all">ALL GENRES</button>
+          ${genresForFilter.map(([gid,g])=>`<button class="chip ${genreFilter===gid?'chip-active':''}" data-genre-filter="${gid}" style="${genreFilter===gid?`color:${g.c};border-color:${g.c}`:''}">  ${g.l}</button>`).join('')}
+        </div></div>
+
+        ${progFilter==='clashes'
+          ? (()=>{const gc=detectGroupConflicts(); return renderGroupConflicts(activeDay==='all'?gc:gc.filter(c=>c.a.d===activeDay));})()
+          : progFilter!=='group' ? renderDay(activeDay) : renderPlanView(myPicks)}
+
+        <div class="footer-note">SOURCE: BRUTALASSAULT.CZ · RUNNING ORDER AS OF 06/2026<br>SUBJECT TO CHANGE · CHECK OFFICIAL CHANNELS</div>
+        `}
+      `;
+
+      ttGridSlideDir = null;
+      updateHapticsButton(localStorage.getItem('ba-haptics') || 'on');
+      updateMenuThemeButtons();
+
+      // ── EVENT BINDINGS ──
+      root.querySelectorAll('[data-main-view]').forEach(btn => btn.addEventListener('click', () => {
+        if (btn.dataset.mainView === mainView) return;
+        triggerHaptic('light'); mainView = btn.dataset.mainView;
+        localStorage.setItem('ba-main-view', mainView); window.scrollTo({top:0,behavior:'smooth'}); render();
+      }));
+      root.querySelectorAll('[data-prog-filter]').forEach(btn => btn.addEventListener('click', () => {
+        if (btn.dataset.progFilter === progFilter) return;
+        triggerHaptic('light'); progFilter = btn.dataset.progFilter;
+        localStorage.setItem('ba-prog-filter', progFilter); window.scrollTo({top:0,behavior:'smooth'}); render();
+      }));
+      root.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => {
+        if (btn.dataset.day !== activeDay) triggerHaptic('light');
+        activeDay = btn.dataset.day; localStorage.setItem('ba-active-day', activeDay);
+        window.scrollTo({top:0,behavior:'smooth'}); render();
+      }));
+      root.querySelectorAll('[data-stage-filter]').forEach(btn => btn.addEventListener('click', () => { stageFilter = btn.dataset.stageFilter; render(); }));
+      root.querySelectorAll('[data-genre-filter]').forEach(btn => btn.addEventListener('click', () => { genreFilter = btn.dataset.genreFilter; render(); }));
+      root.querySelectorAll('[data-vmode]').forEach(btn => btn.addEventListener('click', () => { dayViewMode = btn.dataset.vmode; localStorage.setItem('ba-view', dayViewMode); render(); }));
+      root.querySelectorAll('.select-btn').forEach(btn => btn.addEventListener('click', () => { triggerHaptic('medium'); btn.classList.add('popping'); setTimeout(()=>btn.classList.remove('popping'),200); toggleSelection(btn.dataset.bid); }));
+      root.querySelectorAll('.grid-band-star').forEach(btn => btn.addEventListener('click', e => { e.stopPropagation(); triggerHaptic('medium'); btn.classList.add('popping'); setTimeout(()=>btn.classList.remove('popping'),200); toggleSelection(btn.dataset.bid); }));
+      root.querySelectorAll('.grid-band').forEach(el => el.addEventListener('click', e => { if(e.target.closest('.grid-band-star')||e.target.closest('a')) return; toggleSelection(el.dataset.bid); }));
+
+      // ── DAY-TAB SWIPE ──
+      if (progFilter !== 'group' && dayViewMode === 'list') {
+        const listContainer = document.getElementById('day-list-container');
+        if (listContainer) {
+          if (dayListSlideDir) { listContainer.classList.add(dayListSlideDir==='left'?'slide-left':'slide-right'); dayListSlideDir=null; }
+          let sx,sy,st;
+          listContainer.addEventListener('touchstart', e => { sx=e.touches[0].clientX; sy=e.touches[0].clientY; st=Date.now(); }, {passive:true});
+          listContainer.addEventListener('touchend', e => {
+            const dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+            if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*2&&Date.now()-st<500){
+              const idx=DAYS.findIndex(d=>d.id===activeDay);
+              if(dx<0&&idx<DAYS.length-1){triggerHaptic('light');dayListSlideDir='left';activeDay=DAYS[idx+1].id;localStorage.setItem('ba-active-day',activeDay);window.scrollTo({top:0,behavior:'smooth'});render();}
+              else if(dx>0&&idx>0){triggerHaptic('light');dayListSlideDir='right';activeDay=DAYS[idx-1].id;localStorage.setItem('ba-active-day',activeDay);window.scrollTo({top:0,behavior:'smooth'});render();}
+            }
+          }, {passive:true});
+        }
+      }
+
+      // ── KEYBOARD LEFT/RIGHT ──
+      if (!window._ttKeyBound) {
+        window._ttKeyBound = true;
+        document.addEventListener('keydown', e => {
+          if (progFilter !== 'group' || !['ArrowLeft','ArrowRight'].includes(e.key)) return;
+          if (document.activeElement && ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+          const all=SCHEDULE.filter(b=>window.PEOPLE.some(p=>isSelected(b.id,p.id))), byDay={};
+          for(const band of all)(byDay[band.d]||=[]).push(band);
+          const avail=DAYS.filter(d=>byDay[d.id]), cur=avail.findIndex(d=>d.id===ttGridDay);
+          if(e.key==='ArrowRight'&&cur<avail.length-1){ttGridSlideDir='left';ttGridDay=avail[cur+1].id;render();}
+          else if(e.key==='ArrowLeft'&&cur>0){ttGridSlideDir='right';ttGridDay=avail[cur-1].id;render();}
+        });
+      }
+
+      // ── AUTO-SCROLL TO CURRENT BAND ──
+      (function(){
+        if(progFilter==='group') return;
+        const ssKey='ba-autoScrolled-'+activeDay;
+        if(sessionStorage.getItem(ssKey)) return;
+        const now=new Date(), nowMin=now.getHours()*60+now.getMinutes(), nowAdj=nowMin<240?nowMin+1440:nowMin;
+        const festDates={tue:'2026-08-04',wed:'2026-08-05',thu:'2026-08-06',fri:'2026-08-07',sat:'2026-08-08'};
+        const tabDate=festDates[activeDay]; if(!tabDate) return;
+        const todayStr=now.toISOString().slice(0,10);
+        const nextDay=new Date(tabDate); nextDay.setDate(nextDay.getDate()+1);
+        const isToday=todayStr===tabDate||(todayStr===nextDay.toISOString().slice(0,10)&&nowMin<240);
+        if(!isToday) return;
+        const rows=Array.from(document.querySelectorAll('#day-list-container .band-row[data-start-min]'));
+        if(!rows.length) return;
+        const target=rows.find(r=>{const s=+r.dataset.startMin,e=+r.dataset.endMin;return nowAdj>=s&&nowAdj<e;})||rows.find(r=>+r.dataset.startMin>nowAdj);
+        if(!target) return;
+        sessionStorage.setItem(ssKey,'1');
+        setTimeout(()=>target.scrollIntoView({behavior:'smooth',block:'center'}),300);
+      })();
+
+      // ── SCROLL FAB ──
+      if (!window._scrollFabBound) {
+        window._scrollFabBound = true;
+        const fab = document.getElementById('scroll-top-btn');
+        window.addEventListener('scroll', () => { fab&&fab.classList.toggle('visible',window.scrollY>600); }, {passive:true});
+      }
+    }
+
+    // ── FIREBASE INIT ──
+    async function initApp() {
+      if (window.DEMO_MODE) { render(); return; }
+      try {
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+        const { getDatabase, ref, onValue, update } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js');
+        const app = initializeApp(window.FIREBASE_CONFIG);
+        _db = getDatabase(app); _fbRef = ref; _fbUpdate = update;
+        const selRef = ref(_db, 'ba29/selections');
+        onValue(selRef, snap => {
+          const remote = snap.val();
+          if (remote) { selections = remote; localStorage.setItem('fbp-demo-selections', JSON.stringify(selections)); }
+          render();
+        }, err => { console.warn('Firebase offline, using local state:', err.message); render(); });
+      } catch(e) {
+        console.warn('Firebase failed, switching to demo mode:', e);
+        window.DEMO_MODE = true;
+        const banner = document.getElementById('demo-banner');
+        if (banner && sessionStorage.getItem('fbp-demo-banner-dismissed') !== '1') { banner.style.display = 'flex'; document.body.classList.add('demo-banner-visible'); }
+        render();
+      }
+    }
+
+    // ── BOOTSTRAP ──
+    if (window._needsNameSetup && window._needsNameSetup()) {
+      window._showSetupModal(false, () => initApp());
+    } else {
+      initApp();
+    }
+  </script>
+</body>
+</html>
+</html>
+</html>
