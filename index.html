@@ -935,6 +935,7 @@
 
     // ── RENDER HELPERS ──
     function viewToggle() {
+      if (activeDay === 'all') return '';
       return `<div class="view-toggle">
         <button class="vt-btn ${dayViewMode==='list'?'vt-active':''}" data-vmode="list">📋 LIST</button>
         <button class="vt-btn ${dayViewMode==='grid'?'vt-active':''}" data-vmode="grid">📊 GRID</button>
