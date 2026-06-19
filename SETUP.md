@@ -38,25 +38,72 @@ group scenario. Don't store sensitive data.
 
 ## 4. Get Web Config
 
-1. Project Settings (gear icon) → "General" tab
-2. Scroll to "Your apps" → Click web icon (`</>`)
-3. Register app — give it a nickname
-4. **Don't** enable Firebase Hosting
-5. Copy the `firebaseConfig` object
+This step gets your Firebase credentials — a set of keys that lets the app
+connect to your database.
+
+1. In the Firebase console, click the **gear icon ⚙** (top left, next to "Project Overview")
+2. Select **"Project settings"**
+3. Scroll down to the **"Your apps"** section
+4. Click the **web icon `</>`** to add a web app
+5. Enter any nickname (e.g., "BA29 App") — this is just a label
+6. Leave **"Also set up Firebase Hosting"** unchecked
+7. Click **"Register app"**
+8. You'll see a code block like this — **copy the whole `firebaseConfig` object**:
+
+```js
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc123"
+};
+```
+
+9. Click **"Continue to console"** — you don't need to do anything else on that page
 
 ## 5. Configure Your Fork
 
-1. In your repo: copy `config.example.js` to `config.js`
-2. Paste your Firebase values into `config.js`
-3. **Important**: `config.js` is in `.gitignore` — never commit it
+Now you'll create your personal `config.js` file with the credentials from Step 4.
+
+1. In your local copy of the repo, find the file **`config.example.js`**
+2. **Duplicate** it and rename the copy to **`config.js`** (same folder, same level as `index.html`)
+3. Open `config.js` in a text editor
+4. Replace each placeholder with the real value from your Firebase `firebaseConfig`:
+
+```js
+// config.js — fill in your Firebase credentials from Step 4
+window.FIREBASE_CONFIG = {
+  apiKey:            "AIzaSy...",           // ← paste your apiKey here
+  authDomain:        "your-project.firebaseapp.com",
+  databaseURL:       "https://your-project-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "your-project-id",
+  storageBucket:     "your-project.appspot.com",
+  messagingSenderId: "123456789",
+  appId:             "1:123456789:web:abc123"
+};
+```
+
+5. Save the file
+
+> **Important**: `config.js` is listed in `.gitignore` and will never be committed
+> to GitHub. It only lives on your computer (and on Netlify — see Step 6).
 
 ## 6. Deploy
 
 ### Option A: Netlify (recommended)
 
-1. Sign up at netlify.com (free)
-2. Drag-and-drop your repo folder into Netlify
-3. Done — you get a URL like `your-app.netlify.app`
+Netlify lets you upload the folder directly and serve it — including your `config.js`.
+
+1. Sign up at [netlify.com](https://netlify.com) (free)
+2. From the Netlify dashboard, click **"Add new site" → "Deploy manually"**
+3. Drag your entire project folder (the one containing `index.html`) into the upload area
+4. Netlify deploys it in seconds — you get a URL like `your-app.netlify.app`
+5. Share that URL with your group
+
+To update later: drag-and-drop the folder again — Netlify replaces the old version.
 
 ### Option B: GitHub Pages
 
@@ -70,13 +117,13 @@ group scenario. Don't store sensitive data.
 ## 7. First Use
 
 1. Open your deployed URL
-2. Enter crew member names (these stay on your device)
-3. Start picking bands
+2. Enter your name (and optionally your crew members' names)
+3. Start picking bands — picks sync automatically across all devices
 
 ## Adding More Crew Members
 
-In `schedule.js`, uncomment additional `PEOPLE_SLOTS` entries (up to 10 total).
-Refresh the app to see new name input fields.
+All 10 slots are already available in the app. Just open the app, tap the
+hamburger menu **☰ → Edit Crew**, and add more names.
 
 ## Custom Festival Data
 
