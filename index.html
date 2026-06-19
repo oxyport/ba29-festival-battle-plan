@@ -234,6 +234,8 @@
     /* ── STATS ── */
     .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px; }
     .stat-box { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 1px; padding: 11px 6px; text-align: center; }
+    .stat-box-btn { cursor: pointer; font-family: inherit; transition: border-color 0.15s, background 0.15s; }
+    .stat-box-btn:active { background: var(--bg-card); border-color: var(--text-muted); }
     .stat-warn { border-color: #5a1010; box-shadow: 0 0 10px rgba(192,57,43,0.2); }
     .stat-value { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 22px; line-height: 1; color: var(--text-secondary); }
     .stat-label { font-size: 8px; color: var(--text-muted); letter-spacing: 1.5px; margin-top: 5px; }
@@ -817,7 +819,7 @@
     const getPersonInfo = id => window.PEOPLE.find(p => p.id === id) || null;
     const getGenreInfo = n => GENRES[BAND_GENRES[n] || 'other'] || GENRES.other;
     const getGenreId   = n => BAND_GENRES[n] || 'other';
-    const spotifyUrl   = n => `https://open.spotify.com/search/${encodeURIComponent(n.replace(/\s*feat\..*$/i,'').replace(/\s*plays.*$/i,'').replace(/·.*$/,'').trim())}`;
+    const spotifyUrl   = n => `spotify:search:${encodeURIComponent(n.replace(/\s*feat\..*$/i,'').replace(/\s*plays.*$/i,'').replace(/·.*$/,'').trim())}`;
     const toMinutes    = t => { if (!t) return 0; const [h,m] = t.split(':').map(Number); return h*60+(m||0); };
     const bandStartMinutes = b => { const m = toMinutes(b.s); return m < 240 ? m+1440 : m; };
     const bandEndMinutes   = b => { let s=toMinutes(b.s),e=toMinutes(b.e); if(e<=s)e+=1440; if(s<240)e+=1440; return e; };
@@ -1021,8 +1023,13 @@
 
     // ── DAY GRID (full lineup view) ──
     function renderDayGrid(dayId) {
-      const dayInfo=getDayInfo(dayId), dayBands=SCHEDULE.filter(b=>b.d===dayId);
-      const totalCount=dayBands.length, myCountInDay=dayBands.filter(b=>isSelected(b.id,currentPerson)).length;
+      const dayInfo=getDayInfo(dayId);
+      const totalCount=SCHEDULE.filter(b=>b.d===dayId).length;
+      const myCountInDay=SCHEDULE.filter(b=>b.d===dayId&&isSelected(b.id,currentPerson)).length;
+      let dayBands=SCHEDULE.filter(b=>b.d===dayId);
+      if(progFilter==='mine') dayBands=dayBands.filter(b=>isSelected(b.id,currentPerson));
+      if(stageFilter!=='all') dayBands=dayBands.filter(b=>b.st===stageFilter);
+      if(genreFilter!=='all') dayBands=dayBands.filter(b=>getGenreId(b.n)===genreFilter);
       if(!dayBands.length) return `<div class="lineup-poster" style="--day-color:${dayInfo.color}">${posterHeaderForDay(dayInfo,0,0)}${viewToggle()}<div class="empty">NO BANDS.</div></div>`;
       const stagesInDay=STAGES.filter(s=>dayBands.some(b=>b.st===s.id));
       const allS=dayBands.map(b=>bandStartMinutes(b)), allE=dayBands.map(b=>bandEndMinutes(b));
@@ -1227,6 +1234,7 @@
       const myPicks = SCHEDULE.filter(b => isSelected(b.id, currentPerson));
       const conflicts = detectConflicts(currentPerson);
       const groupPicksCount = SCHEDULE.filter(b => window.PEOPLE.some(p => isSelected(b.id, p.id))).length;
+      const groupConflicts = detectGroupConflicts();
 
       const tripDate = new Date('2026-08-04T14:40:00'), diff = Math.ceil((tripDate - new Date()) / 86400000);
       const countdown = diff > 0 ? `T-${diff} DAYS` : diff === 0 ? 'ATTACK NOW' : 'FESTIVAL IS LIVE';
@@ -1255,10 +1263,10 @@
         </div>
 
         <div class="stats-row">
-          <div class="stat-box"><div class="stat-value" style="color:${me?me.color:'#c0392b'}">${myPicks.length}</div><div class="stat-label">MY PICKS</div></div>
-          <div class="stat-box ${conflicts.length>0?'stat-warn':''}"><div class="stat-value" style="color:${conflicts.length>0?'#c0392b':'#27ae60'}">${conflicts.length}</div><div class="stat-label">MY CONFLICTS</div></div>
-          <div class="stat-box"><div class="stat-value" style="color:#27ae60">${groupPicksCount}</div><div class="stat-label">GROUP PICKS</div></div>
-          <div class="stat-box"><div class="stat-value">${SCHEDULE.length}</div><div class="stat-label">TOTAL BANDS</div></div>
+          <button class="stat-box stat-box-btn" data-stat-nav="my-picks"><div class="stat-value" style="color:${me?me.color:'#c0392b'}">${myPicks.length}</div><div class="stat-label">MY PICKS</div></button>
+          <button class="stat-box stat-box-btn ${conflicts.length>0?'stat-warn':''}" data-stat-nav="my-conflicts"><div class="stat-value" style="color:${conflicts.length>0?'#c0392b':'#27ae60'}">${conflicts.length}</div><div class="stat-label">MY CONFLICTS</div></button>
+          <button class="stat-box stat-box-btn" data-stat-nav="group"><div class="stat-value" style="color:#27ae60">${groupPicksCount}</div><div class="stat-label">GROUP PICKS</div></button>
+          <button class="stat-box stat-box-btn ${groupConflicts.length>0?'stat-warn':''}" data-stat-nav="clashes"><div class="stat-value" style="color:${groupConflicts.length>0?'#c0392b':'#27ae60'}">${groupConflicts.length}</div><div class="stat-label">CLASHES</div></button>
         </div>
 
         <div class="view-tabs-bar">
@@ -1300,6 +1308,22 @@
       updateMenuThemeButtons();
 
       // ── EVENT BINDINGS ──
+      root.querySelectorAll('[data-stat-nav]').forEach(btn => btn.addEventListener('click', () => {
+        triggerHaptic('light');
+        mainView = 'lineup'; activeDay = 'all'; stageFilter = 'all'; genreFilter = 'all';
+        const nav = btn.dataset.statNav;
+        if (nav === 'my-picks')     progFilter = 'mine';
+        if (nav === 'my-conflicts') progFilter = 'mine';
+        if (nav === 'group')        progFilter = 'group';
+        if (nav === 'clashes')      progFilter = 'clashes';
+        localStorage.setItem('ba-prog-filter', progFilter);
+        localStorage.setItem('ba-active-day', activeDay);
+        localStorage.setItem('ba-main-view', mainView);
+        render();
+        if (nav === 'my-conflicts') {
+          setTimeout(() => { const el = document.querySelector('.plan-section'); if (el) el.scrollIntoView({behavior:'smooth'}); }, 100);
+        } else { window.scrollTo({top:0,behavior:'smooth'}); }
+      }));
       root.querySelectorAll('[data-main-view]').forEach(btn => btn.addEventListener('click', () => {
         if (btn.dataset.mainView === mainView) return;
         triggerHaptic('light'); mainView = btn.dataset.mainView;
