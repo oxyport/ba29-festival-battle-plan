@@ -885,6 +885,7 @@
     const getSelectedPeople = bid => window.PEOPLE.filter(p => selections[bid] && selections[bid][p.id]);
 
     async function toggleSelection(bid) {
+      if (!currentPerson) return;
       const newVal = !isSelected(bid, currentPerson);
       if (!selections[bid]) selections[bid] = {};
       selections[bid][currentPerson] = newVal;
@@ -1480,6 +1481,7 @@
             if (currentPerson && !window.PEOPLE.find(p => p.id === currentPerson)) {
               currentPerson = ''; localStorage.removeItem('fbp-person');
             }
+            render();
           }
         });
 
