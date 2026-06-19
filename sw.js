@@ -1,7 +1,7 @@
 // BA29 Festival Battle Plan — Service Worker v1
 // iOS-bulletproof: caches Firebase SDK & Fonts so ES-module imports work offline.
 
-const CACHE_NAME = 'ba29-v1';
+const CACHE_NAME = 'ba29-v2';
 
 const LOCAL_FILES = [
   './',
