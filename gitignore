@@ -1,0 +1,52 @@
+# OS-spezifische Dateien
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor-Dateien
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Logs & temporäre Dateien
+*.log
+*.bak
+*.tmp
+*.backup
+.cache/
+
+# Lokale Konfiguration (falls jemals .env-Files genutzt werden)
+.env
+.env.local
+.env.*.local
+
+# Node.js (falls jemals dazukommt)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build-Verzeichnisse (falls jemals Build-System dazukommt)
+dist/
+build/
+out/
+
+# Netlify lokale Builds
+.netlify/
+
+# Backup-Dateien
+*.html.backup
+*.bak
+
+# Firebase lokale Dateien
+.firebase/
+firebase-debug.log
