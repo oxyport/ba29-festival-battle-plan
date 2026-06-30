@@ -102,7 +102,7 @@
       font-family: 'Share Tech Mono', monospace;
       color: var(--text-secondary); overflow-x: hidden;
       padding-top: env(safe-area-inset-top);
-      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      padding-bottom: calc(92px + env(safe-area-inset-bottom));
     }
     .noise {
       pointer-events: none; position: fixed; inset: 0; z-index: 0;
@@ -250,18 +250,6 @@
     .stat-value { font-family: 'Oswald', sans-serif; font-weight: 900; font-size: 22px; line-height: 1; color: var(--text-secondary); }
     .stat-label { font-size: 8px; color: var(--text-muted); letter-spacing: 1.5px; margin-top: 5px; }
 
-    /* ── VIEW TABS ── */
-    .view-tabs-bar { display: flex; gap: 6px; margin-bottom: 16px; }
-    .view-tab-btn {
-      flex: 1; padding: 12px 8px; background: var(--bg-elevated);
-      border: 2px solid var(--border-subtle); border-radius: 4px;
-      color: var(--text-muted); font-family: 'Oswald', sans-serif;
-      font-weight: 700; font-size: 13px; letter-spacing: 2px;
-      cursor: pointer; transition: all 0.15s; touch-action: manipulation; min-height: 48px;
-    }
-    .view-tab-btn:hover { color: var(--text-secondary); border-color: var(--border-strong); }
-    .view-tab-active { background: var(--bg-card); border-color: var(--accent-red); color: var(--accent-red); }
-
     /* ── DAY TABS ── */
     .tabs { display: flex; gap: 4px; margin-bottom: 10px; border: 1px solid var(--border-subtle); background: var(--bg-base); padding: 4px; border-radius: 2px; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     .tabs::-webkit-scrollbar { display: none; }
@@ -276,6 +264,37 @@
     .chip { background: var(--bg-elevated); color: var(--text-muted); border: 1px solid var(--border-subtle); border-radius: 1px; padding: 4px 8px; font-size: 9px; cursor: pointer; font-family: 'Share Tech Mono', monospace; letter-spacing: 0.5px; transition: all 0.15s; min-height: 44px; display: inline-flex; align-items: center; }
     .chip:hover { border-color: var(--accent-red-dim); color: var(--text-secondary); }
     .chip-active { color: var(--accent-red); border-color: var(--accent-red); background: var(--bg-card); }
+
+    /* ── BAND SEARCH ── */
+    .search-bar { position: relative; display: flex; align-items: center; margin-bottom: 10px; }
+    .search-icon { position: absolute; left: 12px; font-size: 14px; opacity: 0.6; pointer-events: none; }
+    .search-input {
+      width: 100%; box-sizing: border-box; padding: 11px 38px 11px 38px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: 2px;
+      color: var(--text-primary); font-family: 'Share Tech Mono', monospace; font-size: 14px;
+      letter-spacing: 1px; outline: none; transition: border-color 0.15s;
+    }
+    .search-input::placeholder { color: var(--text-muted); letter-spacing: 1.5px; }
+    .search-input:focus { border-color: var(--accent-red-dim); }
+    .search-clear {
+      position: absolute; right: 8px; background: var(--bg-card); border: 1px solid var(--border-subtle);
+      color: var(--text-secondary); cursor: pointer; width: 26px; height: 26px; border-radius: 50%;
+      font-size: 13px; line-height: 1; display: flex; align-items: center; justify-content: center;
+      touch-action: manipulation;
+    }
+    .search-clear:active { background: var(--accent-red-dim); color: #fff; }
+
+    /* ── STICKY CONTROLS (day tabs + stage filter stay pinned while scrolling) ── */
+    .sticky-controls {
+      position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+      background: var(--bg-base); margin: 0 -14px 10px; padding: 6px 14px 5px;
+      border-bottom: 1px solid var(--border-subtle); box-shadow: 0 8px 14px -8px rgba(0,0,0,0.85);
+    }
+    .sticky-controls .day-tabs { margin-bottom: 5px; }
+    .sticky-controls > .filter-section:last-child { margin-bottom: 0; }
+    .sticky-controls .tab { min-height: 38px; padding: 6px 10px; }
+    .sticky-controls .chip { min-height: 36px; }
+    .filter-genre { margin-bottom: 12px; }
 
     /* ── LINEUP POSTER ── */
     .lineup-poster { background: linear-gradient(180deg, var(--bg-elevated) 0%, var(--bg-base) 100%); border: 2px solid var(--border-subtle); border-top: 4px solid var(--day-color); border-radius: 2px; padding: 18px 14px; box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 60px rgba(0,0,0,0.4); }
@@ -307,8 +326,14 @@
     .band-factions { display: flex; gap: 3px; align-items: center; }
     .faction-dot { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 18px; padding: 0 4px; border-radius: 9px; color: var(--text-primary); font-size: 10px; font-weight: bold; font-family: 'Oswald', sans-serif; box-shadow: 0 0 6px rgba(0,0,0,0.5); letter-spacing: 1px; }
     .consensus-tag { font-size: 9px; color: #27ae60; background: rgba(39,174,96,0.1); border: 1px solid rgba(39,174,96,0.4); border-radius: 1px; padding: 2px 6px; letter-spacing: 1px; font-weight: bold; text-shadow: 0 0 10px rgba(39,174,96,0.5); }
-    .spotify-link { font-size: 12px; text-decoration: none; padding: 1px 4px; border-radius: 1px; transition: all 0.15s; opacity: 0.6; line-height: 1; display: inline-block; }
-    .spotify-link:hover { opacity: 1; transform: scale(1.2); }
+    .spotify-link {
+      font-size: 15px; text-decoration: none; min-width: 30px; min-height: 30px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border-subtle); border-radius: 3px;
+      transition: all 0.15s; opacity: 0.75; line-height: 1; flex-shrink: 0;
+    }
+    .spotify-link:hover { opacity: 1; border-color: #1DB954; transform: scale(1.08); }
+    .spotify-link:active { background: rgba(29,185,84,0.15); }
 
     /* ── SELECT BUTTON ── */
     .select-btn { flex-shrink: 0; align-self: center; background: var(--bg-base); border: 1px solid var(--border-subtle); color: var(--text-muted); border-radius: 1px; padding: 8px 12px; font-size: 18px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.15s; line-height: 1; min-width: 40px; }
@@ -343,7 +368,7 @@
     .grid-band-genre { font-size: 7px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; color: var(--text-secondary); }
     .grid-band-dots { display: flex; gap: 2px; }
     .grid-band-dots .faction-dot { min-width: 16px; height: 14px; font-size: 8px; padding: 0 3px; }
-    .grid-band-star { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.6); border: 1px solid var(--border-subtle); color: var(--text-muted); border-radius: 1px; padding: 2px 5px; font-size: 11px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.15s; line-height: 1; touch-action: manipulation; }
+    .grid-band-star { position: absolute; bottom: 2px; right: 2px; background: rgba(0,0,0,0.6); border: 1px solid var(--border-subtle); color: var(--text-muted); border-radius: 1px; padding: 1px 4px; font-size: 9px; cursor: pointer; font-family: 'Share Tech Mono', monospace; transition: all 0.15s; line-height: 1; touch-action: manipulation; }
     .grid-band-star:hover { color: var(--accent-red); border-color: var(--accent-red-dim); }
     .grid-band-star.selected { color: var(--accent-red); border-color: var(--accent-red); background: rgba(26,8,8,0.95); text-shadow: 0 0 6px rgba(192,57,43,0.8); }
 
@@ -426,21 +451,27 @@
     #pwa-splash.fade-out { opacity: 0; pointer-events: none; }
 
     /* ── SCROLL TO TOP FAB ── */
-    #scroll-top-btn { position: fixed; bottom: calc(20px + env(safe-area-inset-bottom)); right: calc(20px + env(safe-area-inset-right)); width: 48px; height: 48px; border-radius: 50%; background: var(--bg-base); border: 2px solid #c0392b; color: var(--text-primary); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 9000; touch-action: manipulation; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; box-shadow: 0 0 12px rgba(192,57,43,0.4); }
+    #scroll-top-btn { position: fixed; bottom: calc(76px + env(safe-area-inset-bottom)); right: calc(20px + env(safe-area-inset-right)); width: 48px; height: 48px; border-radius: 50%; background: var(--bg-base); border: 2px solid #c0392b; color: var(--text-primary); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 9000; touch-action: manipulation; opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s; box-shadow: 0 0 12px rgba(192,57,43,0.4); }
     #scroll-top-btn.visible { opacity: 1; visibility: visible; }
 
     /* ── INSTALL HINT ── */
-    #install-hint { position: fixed; bottom: 16px; left: 16px; right: 16px; background: var(--bg-base); border: 1px solid #c0392b; color: var(--text-secondary); font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 1px; line-height: 1.5; padding: 12px 40px 12px 14px; border-radius: 2px; z-index: 9999; opacity: 0; transition: opacity 0.4s ease; box-shadow: 0 0 20px rgba(192,57,43,0.3); }
+    #install-hint { position: fixed; bottom: calc(76px + env(safe-area-inset-bottom)); left: 16px; right: 16px; background: var(--bg-base); border: 1px solid #c0392b; color: var(--text-secondary); font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 1px; line-height: 1.5; padding: 12px 40px 12px 14px; border-radius: 2px; z-index: 9999; opacity: 0; transition: opacity 0.4s ease; box-shadow: 0 0 20px rgba(192,57,43,0.3); }
     #install-hint.visible { opacity: 1; }
     #install-hint-close { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); background: none; border: none; color: var(--accent-red); font-size: 18px; cursor: pointer; line-height: 1; padding: 4px; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 480px) {
-      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .header { padding: 18px 0 12px; margin-bottom: 12px; }
+      .title { font-size: clamp(38px, 11vw, 60px); }
+      .countdown-block { margin-bottom: 8px; gap: 10px; }
+      .stats-row { grid-template-columns: repeat(2, 1fr); margin-bottom: 12px; }
       .stat-value { font-size: 20px; }
       .band-time { min-width: 48px; padding-right: 8px; }
       .band-time-start { font-size: 12px; }
       .band-name { font-size: 15px; }
+      .band-stage { font-size: 11px; padding: 3px 7px; }
+      .band-genre { font-size: 10px; padding: 3px 7px; }
+      .faction-dot { font-size: 11px; min-width: 26px; height: 20px; }
       .select-btn { padding: 7px 9px; font-size: 16px; min-width: 36px; }
       .filter-section { flex-direction: column; }
       .conflict-vs { flex-direction: column; gap: 6px; }
@@ -455,7 +486,107 @@
     }
     @media (max-width: 600px) {
       .grid-band { min-height: 32px; }
-      .grid-band-star { min-width: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; padding: 0; }
+      .grid-band-star { min-width: 0; min-height: 0; display: inline-flex; align-items: center; justify-content: center; }
+    }
+
+    /* ── MOBILE GRID (≤819px): full height in page flow → only horizontal stage scroll;
+       compact boxes so content fits the shorter cells. Star + faction dots slimmer. ── */
+    @media (max-width: 819px) {
+      .grid-container,
+      .tt-grid-day-section .grid-container { max-height: none; }
+      .grid-band { padding: 2px 4px; min-height: 16px; }
+      .grid-band-time { font-size: 8px; }
+      .grid-band-name { font-size: 10px; margin-top: 1px; line-height: 1; }
+      .grid-band-bottom { margin-top: 2px; gap: 3px; }
+      .grid-band-genre { font-size: 8px; }
+      .grid-band-star { padding: 0 2px; font-size: 7px; background: rgba(0,0,0,0.4); border: none; }
+      .grid-band-dots { gap: 1px; }
+      .grid-band-dots .faction-dot {
+        min-width: 12px; height: 10px; font-size: 6px; padding: 0 2px;
+        border-radius: 3px; box-shadow: none; letter-spacing: 0;
+      }
+    }
+
+    /* ── DESKTOP / LAPTOP (≥820px): larger, airier layout (mobile untouched) ── */
+    @media (min-width: 820px) {
+      #root { max-width: 1140px; padding: 0 28px; }
+      .band-name { font-size: 23px; }
+      .band-time-start { font-size: 18px; }
+      .band-time-end { font-size: 13px; }
+      .band-stage { font-size: 13px; padding: 4px 9px; }
+      .band-genre { font-size: 13px; padding: 4px 9px; }
+      .band-row { padding: 14px 14px; gap: 14px; }
+      .faction-dot { font-size: 13px; min-width: 30px; height: 24px; }
+      .chip { font-size: 14px; padding: 8px 14px; }
+      .tab { font-size: 15px; padding: 10px 14px; }
+      .stat-value { font-size: 34px; }
+      .stat-label { font-size: 13px; }
+      .stat-box { min-height: 82px; }
+      .poster-presents { font-size: 13px; }
+      .poster-sub { font-size: 14px; }
+      .poster-date { font-size: clamp(28px, 3vw, 36px); }
+      .poster-count { font-size: 36px; }
+      .poster-emoji { font-size: 48px; }
+      .search-input { font-size: 17px; padding: 15px 44px; }
+      .spotify-link { font-size: 19px; min-width: 38px; min-height: 38px; }
+      .empty { font-size: 15px; }
+      .title { font-size: clamp(72px, 8vw, 110px); }
+      .footer-note { font-size: 11px; }
+      /* Bottom nav: centered on column width instead of edge-to-edge */
+      #bottom-nav { left: 0; right: 0; margin-left: auto; margin-right: auto; max-width: 1140px; box-sizing: border-box; border-left: 1px solid var(--border-strong); border-right: 1px solid var(--border-strong); }
+      .bn-btn { min-height: 64px; }
+      .bn-ico { font-size: 22px; }
+      .bn-lbl { font-size: 11px; }
+      /* Grid bigger: wider stage columns, more height, larger type */
+      .grid-container { max-height: 78vh; }
+      .tt-grid-day-section .grid-container { max-height: 78vh; }
+      .grid-stages-area { flex: 1; }
+      .grid-stage-col { flex: 1 1 0; min-width: 200px; }
+      .grid-time-col { width: 56px; }
+      .grid-hour { font-size: 12px; }
+      .grid-stage-header { font-size: 13px; height: 34px; padding: 9px 4px; }
+      .grid-band { padding: 6px 8px; }
+      .grid-band-time { font-size: 12px; }
+      .grid-band-name { font-size: 14px; margin-top: 4px; }
+      .grid-band-genre { font-size: 11px; }
+      .grid-band-dots .faction-dot { min-width: 20px; height: 17px; font-size: 10px; }
+      .grid-band-star { font-size: 13px; padding: 3px 7px; }
+    }
+
+    /* ── BOTTOM TAB BAR (primary mobile nav) ── */
+    #bottom-nav {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 9000;
+      display: flex; align-items: stretch;
+      background: var(--bg-elevated); border-top: 1px solid var(--border-strong);
+      box-shadow: 0 -8px 24px rgba(0,0,0,0.55);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    .bn-btn {
+      flex: 1 1 0; min-width: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; min-height: 56px; padding: 8px 2px;
+      background: transparent; border: none; border-top: 2px solid transparent;
+      color: var(--text-muted); cursor: pointer; font-family: 'Share Tech Mono', monospace;
+      touch-action: manipulation; transition: color .15s, background .15s, border-color .15s;
+    }
+    .bn-btn:active { background: var(--bg-card); }
+    .bn-ico { font-size: 18px; line-height: 1; }
+    .bn-lbl { font-size: 9px; letter-spacing: 1.5px; }
+    .bn-btn.bn-active {
+      color: var(--accent-red); border-top-color: var(--accent-red);
+      background: var(--bg-card); text-shadow: 0 0 10px rgba(192,57,43,0.5);
+    }
+
+    /* ── Reduce motion when the system requests it (accessibility) ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
     }
   </style>
 </head>
@@ -493,6 +624,15 @@
 
   <!-- ── SCROLL TO TOP ── -->
   <button id="scroll-top-btn" aria-label="Scroll to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+  <!-- ── BOTTOM TAB BAR (primary navigation) ── -->
+  <nav id="bottom-nav" aria-label="Main navigation" style="display:none">
+    <button class="bn-btn" data-nav="all" aria-label="All bands"><span class="bn-ico" aria-hidden="true">📋</span><span class="bn-lbl">ALL</span></button>
+    <button class="bn-btn" data-nav="mine" aria-label="My bands"><span class="bn-ico" aria-hidden="true">★</span><span class="bn-lbl">MINE</span></button>
+    <button class="bn-btn" data-nav="group" aria-label="Group plan"><span class="bn-ico" aria-hidden="true">🤘</span><span class="bn-lbl">PLAN</span></button>
+    <button class="bn-btn" data-nav="clashes" aria-label="Clashes / time collisions"><span class="bn-ico" aria-hidden="true">⚔</span><span class="bn-lbl">CLASH</span></button>
+    <button class="bn-btn" data-nav="now" aria-label="Now live"><span class="bn-ico" aria-hidden="true">▶</span><span class="bn-lbl">NOW</span></button>
+  </nav>
 
   <!-- ── HAMBURGER BACKDROP ── -->
   <div id="hamburger-backdrop" onclick="closeMenu()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9998;"></div>
@@ -851,6 +991,15 @@
     let progFilter  = localStorage.getItem('ba-prog-filter') || 'all';
     let dayViewMode = localStorage.getItem('ba-view') || 'list';
     let ttGridDay = null, ttGridSlideDir = null, dayListSlideDir = null;
+    let searchQuery = '';        // band search (across all days)
+    let dayBeforeSearch = null;  // remembered day before search started
+
+    // During the LIVE festival, open on NOW by default (once per browser session;
+    // respects any manual tab change afterwards). No-op outside festival dates.
+    if (detectFestivalNow() && !sessionStorage.getItem('ba-now-autoset')) {
+      sessionStorage.setItem('ba-now-autoset', '1');
+      mainView = 'now';
+    }
 
     let _fbRef = null, _fbUpdate = null, _db = null;
 
@@ -1026,7 +1175,9 @@
       let all=SCHEDULE.filter(b=>window.PEOPLE.some(p=>isSelected(b.id,p.id)));
       if(stageFilter!=='all') all=all.filter(b=>b.st===stageFilter);
       if(genreFilter!=='all') all=all.filter(b=>getGenreId(b.n)===genreFilter);
+      if(searchQuery) all=all.filter(b=>b.n.toLowerCase().includes(searchQuery.toLowerCase()));
       const dayBands=all.filter(b=>b.d===day).sort((a,b)=>bandStartMinutes(a)-bandStartMinutes(b));
+      if(searchQuery && !dayBands.length) return '';
       if(!dayBands.length) return `<div class="empty" style="padding:32px 0"><div style="font-size:36px;margin-bottom:8px">📅</div><div>NO PICKS FOR THIS DAY.</div></div>`;
       const clusters=buildTimetableClusters(dayBands);
       return `<div class="schedule-list">${clusters.map(c=>c.length===1?bandRow(c[0]):renderConflictCluster(c)).join('')}</div>`;
@@ -1049,7 +1200,7 @@
       const stagesInDay=STAGES.filter(s=>dayBands.some(b=>b.st===s.id));
       const allS=dayBands.map(b=>bandStartMinutes(b)), allE=dayBands.map(b=>bandEndMinutes(b));
       const startH=Math.floor(Math.min(...allS)/60), endH=Math.ceil(Math.max(...allE)/60);
-      const PX=1.8, gh=(endH-startH)*60*PX;
+      const PX=window.innerWidth>=820?2.8:1.2, gh=(endH-startH)*60*PX;
       let hourLabels='';
       for(let h=startH;h<=endH;h++) hourLabels+=`<div class="grid-hour" style="top:${(h-startH)*60*PX}px">${String(h%24).padStart(2,'0')}:00</div>`;
       const cols=stagesInDay.map(stage=>{
@@ -1080,11 +1231,13 @@
       if(progFilter==='mine') dayBands=dayBands.filter(b=>isSelected(b.id,currentPerson));
       if(stageFilter!=='all') dayBands=dayBands.filter(b=>b.st===stageFilter);
       if(genreFilter!=='all') dayBands=dayBands.filter(b=>getGenreId(b.n)===genreFilter);
+      if(searchQuery) dayBands=dayBands.filter(b=>b.n.toLowerCase().includes(searchQuery.toLowerCase()));
+      if(searchQuery && !dayBands.length) return '';
       if(!dayBands.length) return `<div class="lineup-poster" style="--day-color:${dayInfo.color}">${posterHeaderForDay(dayInfo,0,0)}${viewToggle()}<div class="empty">NO BANDS.</div></div>`;
       const stagesInDay=STAGES.filter(s=>dayBands.some(b=>b.st===s.id));
       const allS=dayBands.map(b=>bandStartMinutes(b)), allE=dayBands.map(b=>bandEndMinutes(b));
       const startH=Math.floor(Math.min(...allS)/60), endH=Math.ceil(Math.max(...allE)/60);
-      const PX=1.8, gh=(endH-startH)*60*PX;
+      const PX=window.innerWidth>=820?2.8:1.2, gh=(endH-startH)*60*PX;
       let hourLabels='';
       for(let h=startH;h<=endH;h++) hourLabels+=`<div class="grid-hour" style="top:${(h-startH)*60*PX}px">${String(h%24).padStart(2,'0')}:00</div>`;
       const cols=stagesInDay.map(stage=>{
@@ -1115,6 +1268,8 @@
       if(stageFilter!=='all') dayBands=dayBands.filter(b=>b.st===stageFilter);
       if(genreFilter!=='all') dayBands=dayBands.filter(b=>getGenreId(b.n)===genreFilter);
       if(progFilter==='mine') dayBands=dayBands.filter(b=>isSelected(b.id,currentPerson));
+      if(searchQuery) dayBands=dayBands.filter(b=>b.n.toLowerCase().includes(searchQuery.toLowerCase()));
+      if(searchQuery && !dayBands.length) return '';
       dayBands.sort((a,b)=>bandStartMinutes(a)-bandStartMinutes(b));
       const dayConflicts=detectConflicts(currentPerson).filter(c=>c.a.d===dayId);
       const kfCollapsed=isSectionCollapsed('conflicts');
@@ -1139,6 +1294,7 @@
     function renderPlanView(myPicks) {
       if(activeDay==='all') return DAYS.map(d=>{
         const all=SCHEDULE.filter(b=>window.PEOPLE.some(p=>isSelected(b.id,p.id))).filter(b=>b.d===d.id);
+        if(searchQuery && !all.some(b=>b.n.toLowerCase().includes(searchQuery.toLowerCase()))) return '';
         const myC=myPicks.filter(b=>b.d===d.id).length;
         return `<div class="lineup-poster" style="--day-color:${d.color}">
           <div class="poster-header"><div class="poster-emoji">${d.emoji}</div><div class="poster-title-block"><div class="poster-presents">BRUTAL ASSAULT // PRESENTS</div><div class="poster-date" style="color:${d.color}">${d.date}</div><div class="poster-sub">${d.sub} · ${all.length} PICKS</div></div><div class="poster-count" style="color:${d.color}">${myC}<br><span>MINE</span></div></div>
@@ -1269,6 +1425,7 @@
     function render() {
       const root = document.getElementById('root');
       if (!currentPerson) {
+        const bn0 = document.getElementById('bottom-nav'); if (bn0) bn0.style.display = 'none';
         root.innerHTML = personPickScreen();
         root.querySelectorAll('.faction-pick-btn').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -1319,35 +1476,57 @@
           <button class="stat-box stat-box-btn ${groupConflicts.length>0?'stat-warn':''}" data-stat-nav="clashes"><div class="stat-value" style="color:${groupConflicts.length>0?'#c0392b':'#27ae60'}">${groupConflicts.length}</div><div class="stat-label">CLASHES</div></button>
         </div>
 
-        <div class="view-tabs-bar">
-          <button class="view-tab-btn ${mainView==='lineup'?'view-tab-active':''}" data-main-view="lineup">📋 LINEUP</button>
-          <button class="view-tab-btn ${mainView==='now'?'view-tab-active':''}" data-main-view="now">▶ NOW</button>
-        </div>
-
         ${mainView==='now' ? renderNow() : `
-        <div class="tabs day-tabs">
-          <button class="tab ${activeDay==='all'?'tab-active':''}" data-day="all">🗓 ALL</button>
-          ${DAYS.map(d=>`<button class="tab ${activeDay===d.id?'tab-active':''}" data-day="${d.id}">${d.emoji} ${d.short}</button>`).join('')}
+        <!-- Search scrolls away with the page -->
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="band-search" class="search-input" placeholder="SEARCH BANDS…"
+            value="${searchQuery.replace(/"/g,'&quot;')}" autocomplete="off" spellcheck="false">
+          ${searchQuery ? `<button class="search-clear" data-search-clear="1" aria-label="Clear search">✕</button>` : ''}
         </div>
 
-        <div class="filter-section"><div class="filter-row">
-          <button class="chip ${progFilter==='all'?'chip-active':''}" data-prog-filter="all">ALL BANDS</button>
-          <button class="chip ${progFilter==='mine'?'chip-active':''}" data-prog-filter="mine" style="${progFilter==='mine'?`color:${me?me.color:'#c0392b'};border-color:${me?me.color:'#c0392b'}`:''}">MINE</button>
-          <button class="chip ${progFilter==='group'?'chip-active':''}" data-prog-filter="group">GROUP PLAN</button>
-          <button class="chip ${progFilter==='clashes'?'chip-active':''}" data-prog-filter="clashes" style="${progFilter==='clashes'?'color:#c0392b;border-color:#c0392b':''}">⚔ CLASHES</button>
-        </div></div>
-        <div class="filter-section"><div class="filter-row">
-          <button class="chip ${stageFilter==='all'?'chip-active':''}" data-stage-filter="all">ALL STAGES</button>
-          ${stagesForFilter.map(s=>`<button class="chip ${stageFilter===s.id?'chip-active':''}" data-stage-filter="${s.id}" style="${stageFilter===s.id?`color:${s.color};border-color:${s.color}`:''}">  ${s.short}</button>`).join('')}
-        </div></div>
-        <div class="filter-section"><div class="filter-row">
+        <!-- Day tabs + stage filter stay pinned while scrolling -->
+        <div class="sticky-controls">
+          ${searchQuery ? '' : `
+          <div class="tabs day-tabs">
+            <button class="tab ${activeDay==='all'?'tab-active':''}" data-day="all">🗓 ALL</button>
+            ${DAYS.map(d=>`<button class="tab ${activeDay===d.id?'tab-active':''}" data-day="${d.id}">${d.emoji} ${d.short}</button>`).join('')}
+          </div>
+          `}
+          <div class="filter-section"><div class="filter-row">
+            <button class="chip ${stageFilter==='all'?'chip-active':''}" data-stage-filter="all">ALL STAGES</button>
+            ${stagesForFilter.map(s=>`<button class="chip ${stageFilter===s.id?'chip-active':''}" data-stage-filter="${s.id}" style="${stageFilter===s.id?`color:${s.color};border-color:${s.color}`:''}">  ${s.short}</button>`).join('')}
+          </div></div>
+        </div>
+
+        <!-- Genre scrolls away with the page -->
+        <div class="filter-section filter-genre"><div class="filter-row">
           <button class="chip ${genreFilter==='all'?'chip-active':''}" data-genre-filter="all">ALL GENRES</button>
           ${genresForFilter.map(([gid,g])=>`<button class="chip ${genreFilter===gid?'chip-active':''}" data-genre-filter="${gid}" style="${genreFilter===gid?`color:${g.c};border-color:${g.c}`:''}">  ${g.l}</button>`).join('')}
         </div></div>
 
-        ${progFilter==='clashes'
-          ? (()=>{const gc=detectGroupConflicts(); return renderGroupConflicts(activeDay==='all'?gc:gc.filter(c=>c.a.d===activeDay));})()
-          : progFilter!=='group' ? renderDay(activeDay) : renderPlanView(myPicks)}
+        ${(() => {
+          const sq = searchQuery.toLowerCase();
+          let body;
+          if (progFilter==='clashes') {
+            let gc = detectGroupConflicts();
+            if (activeDay!=='all') gc = gc.filter(c => c.a.d === activeDay);
+            if (sq) gc = gc.filter(c => c.a.n.toLowerCase().includes(sq) || c.b.n.toLowerCase().includes(sq));
+            body = renderGroupConflicts(gc);
+          } else if (progFilter!=='group') {
+            body = renderDay(activeDay);
+          } else {
+            body = renderPlanView(myPicks);
+          }
+          if (searchQuery && body.trim() === '') {
+            return `<div class="lineup-poster"><div class="empty">
+              <div style="font-size:48px;margin-bottom:12px">🔍</div>
+              <div>NO BAND FOUND</div>
+              <div style="font-size:12px;margin-top:6px;color:#555">FOR “${searchQuery.replace(/</g,'&lt;').replace(/"/g,'&quot;')}”</div>
+            </div></div>`;
+          }
+          return body;
+        })()}
 
         <div class="footer-note">SOURCE: BRUTALASSAULT.CZ · RUNNING ORDER AS OF 06/2026<br>SUBJECT TO CHANGE · CHECK OFFICIAL CHANNELS</div>
         `}
@@ -1361,6 +1540,7 @@
       root.querySelectorAll('[data-stat-nav]').forEach(btn => btn.addEventListener('click', () => {
         triggerHaptic('light');
         mainView = 'lineup'; activeDay = 'all'; stageFilter = 'all'; genreFilter = 'all';
+        searchQuery = ''; dayBeforeSearch = null;
         const nav = btn.dataset.statNav;
         if (nav === 'my-picks')     progFilter = 'mine';
         if (nav === 'my-conflicts') progFilter = 'mine';
@@ -1374,15 +1554,31 @@
           setTimeout(() => { const el = document.querySelector('.plan-section'); if (el) el.scrollIntoView({behavior:'smooth'}); }, 100);
         } else { window.scrollTo({top:0,behavior:'smooth'}); }
       }));
-      root.querySelectorAll('[data-main-view]').forEach(btn => btn.addEventListener('click', () => {
-        if (btn.dataset.mainView === mainView) return;
-        triggerHaptic('light'); mainView = btn.dataset.mainView;
-        localStorage.setItem('ba-main-view', mainView); window.scrollTo({top:0,behavior:'smooth'}); render();
-      }));
-      root.querySelectorAll('[data-prog-filter]').forEach(btn => btn.addEventListener('click', () => {
-        if (btn.dataset.progFilter === progFilter) return;
-        triggerHaptic('light'); progFilter = btn.dataset.progFilter;
-        localStorage.setItem('ba-prog-filter', progFilter); window.scrollTo({top:0,behavior:'smooth'}); render();
+      // ── BAND SEARCH ──
+      const searchInput = document.getElementById('band-search');
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          const val = searchInput.value;
+          const caret = searchInput.selectionStart;
+          if (val && dayBeforeSearch === null) {
+            dayBeforeSearch = activeDay;   // remember day, then search across all days
+            activeDay = 'all';
+          } else if (!val && dayBeforeSearch !== null) {
+            activeDay = dayBeforeSearch;   // search cleared: back to the day
+            dayBeforeSearch = null;
+          }
+          searchQuery = val;
+          render();
+          const ni = document.getElementById('band-search');
+          if (ni) { ni.focus(); try { ni.setSelectionRange(caret, caret); } catch (e) {} }
+        });
+      }
+      root.querySelectorAll('[data-search-clear]').forEach(btn => btn.addEventListener('click', () => {
+        searchQuery = '';
+        if (dayBeforeSearch !== null) { activeDay = dayBeforeSearch; dayBeforeSearch = null; }
+        render();
+        const ni = document.getElementById('band-search');
+        if (ni) ni.focus();
       }));
       root.querySelectorAll('[data-day]').forEach(btn => btn.addEventListener('click', () => {
         if (btn.dataset.day !== activeDay) triggerHaptic('light');
@@ -1453,6 +1649,39 @@
         window._scrollFabBound = true;
         const fab = document.getElementById('scroll-top-btn');
         window.addEventListener('scroll', () => { fab&&fab.classList.toggle('visible',window.scrollY>600); }, {passive:true});
+      }
+
+      // ── BOTTOM NAV (primary navigation) ──
+      const bnEl = document.getElementById('bottom-nav');
+      if (bnEl) {
+        bnEl.style.display = 'flex';
+        if (!window._bottomNavBound) {
+          window._bottomNavBound = true;
+          bnEl.querySelectorAll('.bn-btn').forEach(btn => btn.addEventListener('click', () => {
+            const nav = btn.dataset.nav;
+            triggerHaptic('light');
+            if (nav === 'now') {
+              mainView = 'now';
+            } else {
+              mainView = 'lineup';
+              progFilter = nav;
+              if (nav === 'group' || nav === 'clashes') activeDay = 'all';
+            }
+            searchQuery = ''; dayBeforeSearch = null;
+            localStorage.setItem('ba-main-view', mainView);
+            localStorage.setItem('ba-prog-filter', progFilter);
+            localStorage.setItem('ba-active-day', activeDay);
+            window.scrollTo({top:0,behavior:'smooth'});
+            render();
+          }));
+        }
+        const activeNav = mainView === 'now' ? 'now' : progFilter;
+        bnEl.querySelectorAll('.bn-btn').forEach(btn => {
+          const on = btn.dataset.nav === activeNav;
+          btn.classList.toggle('bn-active', on);
+          if (on) btn.setAttribute('aria-current', 'page');
+          else btn.removeAttribute('aria-current');
+        });
       }
     }
 
